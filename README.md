@@ -37,3 +37,9 @@ Open a dev instance of the app in a browser with LiveReload:
 ````
 grunt serve
 ````
+
+Deploy to your own gh-pages branch:
+
+````
+grunt deploy
+````
