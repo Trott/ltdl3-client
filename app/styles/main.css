@@ -58,3 +58,8 @@
 .progress-bar-indeterminate {
     width: 100%;
 }
+
+/* Downsize h1 */
+h1 {
+    font-size: 30px;
+}

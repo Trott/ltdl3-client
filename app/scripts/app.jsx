@@ -20,7 +20,7 @@ var Footer = require('./Footer.jsx');
             return (
                 <div className="container">
                     <GithubRibbon/>
-                    <h1 className="h2">LTDL3 Search Builder Prototype</h1>
+                    <h1>Search the Legacy Tobacco Documents</h1>
                     <SearchBuilder showResults={this.showResults}/>
                     <SearchResults ref="results"/>
                     <Footer/>

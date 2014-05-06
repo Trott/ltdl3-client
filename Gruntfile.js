@@ -29,15 +29,20 @@ module.exports = function (grunt) {
                 tasks: ['browserify']
             },
 
+            cssmin: {
+                files: ['<%= paths.app %>/styles/**/*.css'],
+                tasks: ['cssmin']
+            },
+
             livereload: {
                 options: {
                     livereload: LIVERELOAD_PORT
                 },
                 files: [
-                    '<%= paths.app %>/*.html',
-                    '{.tmp,<%= paths.app %>}/styles/**/*.css',
-                    '{.tmp,<%= paths.app %>}/scripts/**/*.js',
-                    '<%= paths.app %>/images/**/*.{png,jpg,jpeg,gif,webp}'
+                    '<%= paths.dist %>/*.html',
+                    '{.tmp,<%= paths.dist %>}/styles/**/*.css',
+                    '{.tmp,<%= paths.dist %>}/scripts/**/*.js',
+                    '<%= paths.dist %>/images/**/*.{png,jpg,jpeg,gif,webp}'
                 ]
             }
         },
