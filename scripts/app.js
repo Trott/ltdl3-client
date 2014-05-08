@@ -59,7 +59,11 @@ var SearchBuilderComponent = require('./SearchBuilderComponent.jsx');
     var queryExpressions = [];
 
     var getQueryString = function () {
-        return queryExpressions.join(' ');
+        var queries = queryExpressions.map(function(el) {
+            return el.code + ':' + el.value;
+        });
+        console.dir(queries);
+        return queries.join(' ');
     };
 
     module.exports = React.createClass({displayName: 'exports',
@@ -102,8 +106,12 @@ var SearchBuilderComponent = require('./SearchBuilderComponent.jsx');
                 components: components
             });
         },
-        setQueryExpression: function (value, index) {
-            queryExpressions[index] = value;
+        setQueryExpression: function (query, index) {
+            queryExpressions[index] = queryExpressions[index] || {};
+            if (typeof query.value === "string") {
+                queryExpressions[index].value = query.value;
+            }
+            queryExpressions[index].code = query.code;
         },
         handleSubmit: function () {
             this.props.showResults({loading: true, data: {}});
@@ -149,15 +157,68 @@ var SearchBuilderComponent = require('./SearchBuilderComponent.jsx');
     });
 }());
 
-},{"./SearchBuilderComponent.jsx":4,"react":146}],4:[function(require,module,exports){
+},{"./SearchBuilderComponent.jsx":5,"react":146}],4:[function(require,module,exports){
 /**
  * @jsx React.DOM
  */
 var React = require('react');
-var searchBuilderFilterType = require('./searchBuilderFilterType.jsx');
-var searchBuilderFilterPhrase = require('./searchBuilderFilterPhrase.jsx');
-var searchBuilderTextBox = require('./searchBuilderTextBox.jsx');
-var searchBuilderAdd = require('./searchBuilderAdd.jsx');
+
+// TODO: magic value plusOrMinus = "plus" or "minus" should be booleanized or enumed
+
+(function () {
+    'use strict';
+
+    module.exports = React.createClass({displayName: 'exports',
+        getInitialState: function () {
+            return {
+                plusOrMinus: "plus",
+                boolean: ""
+            }
+        },
+        add: function (event) {
+            this.setState({boolean: event.target.getAttribute('data-boolean')});
+
+            if (this.state.plusOrMinus === "plus") {
+                this.setState({plusOrMinus: "minus"});
+                this.props.add(this.props.index);
+            }
+        },
+        remove: function (event) {
+            if (this.state.plusOrMinus === "minus") {
+                this.props.remove(this.props.index);
+            }
+        },
+        render: function () {
+            var revisePulldownStyle = {display: "inherit"};
+            var toggleClass = "";
+            if (this.state.plusOrMinus === "plus") {
+                revisePulldownStyle = {display: "none"}
+                toggleClass = "dropdown-toggle"
+            }
+            return (
+                React.DOM.div( {className:"input-group-btn"}, 
+                    React.DOM.button( {style:revisePulldownStyle, type:"button", className:"btn btn-default dropdown-toggle", 'data-toggle':"dropdown"}, this.state.boolean, " ", React.DOM.span( {className:"caret"})),
+                    React.DOM.button( {type:"button", onClick:this.remove, className:"btn btn-default {toggleClass}", 'data-toggle':"dropdown"}, React.DOM.span( {className:"glyphicon glyphicon-" + this.state.plusOrMinus})),
+                    React.DOM.ul( {className:"dropdown-menu dropdown-menu-right", role:"menu"}, 
+                        React.DOM.li(null, React.DOM.a( {'data-boolean':"AND", onClick:this.add, href:"#"}, "AND")),
+                        React.DOM.li(null, React.DOM.a( {'data-boolean':"OR", onClick:this.add, href:"#"}, "OR")),
+                        React.DOM.li(null, React.DOM.a( {'data-boolean':"NOT", onClick:this.add, href:"#"}, "NOT"))
+                    )
+                )
+            )
+        }
+    });
+}());
+
+},{"react":146}],5:[function(require,module,exports){
+/**
+ * @jsx React.DOM
+ */
+var React = require('react');
+var searchBuilderFilterType = require('./SearchBuilderFilterType.jsx');
+var searchBuilderFilterPhrase = require('./SearchBuilderFilterPhrase.jsx');
+var searchBuilderTextBox = require('./SearchBuilderTextBox.jsx');
+var searchBuilderAdd = require('./SearchBuilderAdd.jsx');
 
 (function () {
     'use strict';
@@ -167,9 +228,14 @@ var searchBuilderAdd = require('./searchBuilderAdd.jsx');
         focusTextBox: function () {
             this.refs.textBox.focus();
         },
-        setTextBoxValue: function (value) {
-            this.refs.textBox.setState({value: value});
-            this.props.setQueryExpression(value, this.props.index);
+        setTextBoxValue: function (query) {
+            var code = this.refs.typeFilter.getCode();
+            if (query) {
+                this.refs.textBox.setState({value: query.value});
+                this.props.setQueryExpression({value: query.value, code: code}, this.props.index);
+            } else {
+                this.props.setQueryExpression({code: code}, this.props.index);
+            }
         },
         disablePhraseFilter: function () {
             this.refs.phraseFilter.disable();
@@ -185,7 +251,8 @@ var searchBuilderAdd = require('./searchBuilderAdd.jsx');
                 React.DOM.div( {className:"form-group"}, 
                     React.DOM.div( {className:"input-group"}, 
                         searchBuilderFilterType(
-                            {focusTextBox:this.focusTextBox,
+                            {ref:"typeFilter",
+                            focusTextBox:this.focusTextBox,
                             setTextBox:this.setTextBoxValue,
                             disablePhraseFilter:this.disablePhraseFilter}
                         ),
@@ -204,7 +271,197 @@ var searchBuilderAdd = require('./searchBuilderAdd.jsx');
 }());
 
 
-},{"./searchBuilderAdd.jsx":7,"./searchBuilderFilterPhrase.jsx":8,"./searchBuilderFilterType.jsx":9,"./searchBuilderTextBox.jsx":10,"react":146}],5:[function(require,module,exports){
+},{"./SearchBuilderAdd.jsx":4,"./SearchBuilderFilterPhrase.jsx":6,"./SearchBuilderFilterType.jsx":7,"./SearchBuilderTextBox.jsx":8,"react":146}],6:[function(require,module,exports){
+/**
+ * @jsx React.DOM
+ */
+var React = require('react');
+
+(function () {
+    'use strict';
+
+    var choices = [
+        {key: 'choice0', label: 'for any of the words'},
+        {key: 'choice1', label: 'for all of the words'},
+        {key: 'choice2', label: 'for the exact phrase'}
+    ];
+
+    var excludes = [
+        {key: 'choice3', label: 'excluding the words'},
+        {key: 'choice4', label: 'excluding the phrase'}
+    ];
+
+    module.exports = React.createClass({displayName: 'exports',
+        enable: function () {
+            this.refs.button.getDOMNode().removeAttribute('disabled');
+        },
+        disable: function () {
+            this.refs.button.getDOMNode().setAttribute('disabled', 'disabled');
+        },
+        getInitialState: function () {
+            return {filterPhrase: "for any of the words"};
+        },
+        componentDidUpdate: function () {
+            if (!this.props.showExcludes) {
+                var excludesLabels = excludes.map(function (el) { return el.label });
+                if (excludesLabels.indexOf(this.state.filterPhrase) !== -1) {
+                    this.setState({filterPhrase: choices[0].label});
+                }
+            }
+        },
+        handleClick: function (event) {
+            this.setState({filterPhrase: event.target.getAttribute('data-value')});
+            this.props.focusTextBox();
+        },
+        render: function() {
+            var myChoices = choices;
+            if (this.props.showExcludes) {
+                myChoices = myChoices.concat(excludes);
+            }
+            var renderedChoices = myChoices.map(function (choice) {
+                return React.DOM.li( {key:choice.key}, React.DOM.a( {'data-value':choice.label, onClick:this.handleClick, href:"#"}, choice.label));
+            }.bind(this));
+            return (
+                React.DOM.div( {className:"input-group-btn"}, 
+                    React.DOM.button( {ref:"button", type:"button", className:"btn btn-default dropdown-toggle", 'data-toggle':"dropdown"}, 
+                        this.state.filterPhrase, " ", React.DOM.span( {className:"caret"})
+                    ),
+                    React.DOM.ul( {className:"dropdown-menu", role:"menu"}, 
+                        renderedChoices
+                    )
+                )
+            );
+        }
+    });
+}());
+
+},{"react":146}],7:[function(require,module,exports){
+/**
+ * @jsx React.DOM
+ */
+var React = require('react');
+
+(function () {
+    'use strict';
+
+    var code = "er";
+
+    module.exports = React.createClass({displayName: 'exports',
+        getInitialState: function () {
+            var rv = {};
+            return {filterType: "Everything"};
+        },
+        handleClickType: function (event) {
+            this.setState({filterType: event.target.getAttribute('data-type')});
+            code = event.target.getAttribute('data-code');
+            this.props.setTextBox();
+            this.props.focusTextBox();
+        },
+        handleClickValue: function (event) {
+            code = event.target.getAttribute('data-code');
+            this.props.setTextBox({value: event.target.getAttribute('data-text-value')});
+            this.props.disablePhraseFilter();
+            this.handleClickType(event);
+        },
+        getCode: function () {
+            return code;
+        },
+        render: function() {
+            return (
+                React.DOM.div( {className:"input-group-btn"}, 
+                    React.DOM.button( {type:"button", className:"btn btn-default dropdown-toggle", 'data-toggle':"dropdown"}, 
+                        this.state.filterType, " ", React.DOM.span( {className:"caret"})
+                    ),
+                    React.DOM.ul( {className:"dropdown-menu", role:"menu"}, 
+                        React.DOM.li(null, React.DOM.a( {'data-code':"er", 'data-type':"Everywhere", onClick:this.handleClickType, href:"#"}, "Everywhere")),
+                        React.DOM.li(null, React.DOM.a( {'data-code':"ti", 'data-type':"Title", onClick:this.handleClickType, href:"#"}, "Title")),
+                        React.DOM.li(null, React.DOM.a( {'data-code':"per", 'data-type':"Person", onClick:this.handleClickType, href:"#"}, "Person")),
+                        React.DOM.li(null, React.DOM.a( {'data-code':"org", 'data-type':"Organization", onClick:this.handleClickType, href:"#"}, "Organization")),
+                        React.DOM.li( {className:"dropdown-submenu"}, 
+                            React.DOM.a( {'data-code':"dt", 'data-type':"Type", onClick:this.handleClickType, href:"#"}, "Type"),
+                            React.DOM.ul( {className:"dropdown-menu ltdl-filter-what-phrase"}, 
+                                React.DOM.li(null, React.DOM.a( {'data-code':"dt", 'data-type':"Type", 'data-text-value':"Letter", onClick:this.handleClickValue, href:"#"}, "Letter")),
+                                React.DOM.li(null, React.DOM.a( {'data-code':"dt", 'data-type':"Type", 'data-text-value':"Email", onClick:this.handleClickValue, href:"#"}, "Email")),
+                                React.DOM.li(null, React.DOM.a( {'data-code':"dt", 'data-type':"Type", 'data-text-value':"Report", onClick:this.handleClickValue, href:"#"}, "Report")),
+                                React.DOM.li(null, React.DOM.a( {'data-code':"dt", 'data-type':"Type", 'data-text-value':"Ad", onClick:this.handleClickValue, href:"#"}, "Ad")),
+                                React.DOM.li(null, React.DOM.a( {'data-code':"dt", 'data-type':"Type", 'data-text-value':"Video", onClick:this.handleClickValue, href:"#"}, "Video")),
+                                React.DOM.li(null, React.DOM.a( {'data-code':"dt", 'data-type':"Type", 'data-text-value':"Memo", onClick:this.handleClickValue,href:"#"}, "Memo")),
+                                React.DOM.li(null, React.DOM.a( {'data-code':"dt", 'data-type':"Type", 'data-text-value':"Newsletter", onClick:this.handleClickValue, href:"#"}, "Newsletter")),
+                                React.DOM.li(null, React.DOM.a( {'data-code':"dt", 'data-type':"Type", 'data-text-value':"Journal", onClick:this.handleClickValue, href:"#"}, "Journal")),
+                                React.DOM.li(null, React.DOM.a( {'data-code':"dt", 'data-type':"Type", 'data-text-value':"Invoice", onClick:this.handleClickValue, href:"#"}, "Invoice")),
+                                React.DOM.li(null, React.DOM.a( {'data-code':"dt", 'data-type':"Type", 'data-text-value':"Financial", onClick:this.handleClickValue, href:"#"}, "Financial")),
+                                React.DOM.li(null, React.DOM.a( {'data-code':"dt", 'data-type':"Type", 'data-text-value':"Agenda", onClick:this.handleClickValue, href:"#"}, "Agenda")),
+                                React.DOM.li(null, React.DOM.a( {'data-code':"dt", 'data-type':"Type", 'data-text-value':"Form", onClick:this.handleClickValue, href:"#"}, "Form")),
+                                React.DOM.li(null, React.DOM.a( {'data-code':"dt", 'data-type':"Type", 'data-text-value':"Article", onClick:this.handleClickValue, href:"#"}, "Article")),
+                                React.DOM.li(null, React.DOM.a( {'data-code':"dt", 'data-type':"Type", 'data-text-value':"Audio", onClick:this.handleClickValue, href:"#"}, "Audio")),
+                                React.DOM.li(null, React.DOM.a( {'data-code':"dt", 'data-type':"Type", 'data-text-value':"Graphics", onClick:this.handleClickValue, href:"#"}, "Graphics")),
+                                React.DOM.li(null, React.DOM.a( {'data-code':"dt", 'data-type':"Type", onClick:this.handleClickType, href:"#"}, "Other"))
+                            )
+                        ),
+                        React.DOM.li( {className:"dropdown-submenu"}, 
+                            React.DOM.a( {'data-code':"brd", 'data-type':"Brand Name", onClick:this.handleClickType, href:"#"}, "Brand Name"),
+                            React.DOM.ul( {className:"dropdown-menu ltdl-filter-what-phrase"}, 
+                                React.DOM.li(null, React.DOM.a( {'data-code':"brd", 'data-type':"Brand Name", 'data-text-value':"Camel", onClick:this.handleClickValue, href:"#"}, "Camel")),
+                                React.DOM.li(null, React.DOM.a( {'data-code':"brd", 'data-type':"Brand Name", 'data-text-value':"Marlboro", onClick:this.handleClickValue, href:"#"}, "Marlboro")),
+                                React.DOM.li(null, React.DOM.a( {'data-code':"brd", 'data-type':"Brand Name", 'data-text-value':"Viriginia Slims", onClick:this.handleClickValue, href:"#"}, "Virginia Slims")),
+                                React.DOM.li(null, React.DOM.a( {'data-code':"brd", 'data-type':"Brand Name", 'data-text-value':"Skoal", onClick:this.handleClickValue, href:"#"}, "Skoal")),
+                                React.DOM.li(null, React.DOM.a( {'data-code':"brd", 'data-type':"Brand Name", 'data-text-value':"Garcia Y Vega", onClick:this.handleClickValue, href:"#"}, "Garcia Y Vega")),
+                                React.DOM.li(null, React.DOM.a( {'data-code':"brd", 'data-type':"Brand Name", 'data-text-value':"More", onClick:this.handleClickValue, href:"#"}, "More")),
+                                React.DOM.li(null, React.DOM.a( {'data-code':"brd", 'data-type':"Brand Name", 'data-text-value':"Winston", onClick:this.handleClickValue, href:"#"}, "Winston")),
+                                React.DOM.li(null, React.DOM.a( {'data-code':"brd", 'data-type':"Brand Name", onClick:this.handleClickType,  href:"#"}, "Other"))
+                            )
+                        ),
+                        React.DOM.li(null, React.DOM.a( {'data-code':"bn", 'data-type':"Bates Number", onClick:this.handleClickType, href:"#"}, "Bates Number")),
+                        React.DOM.li(null, React.DOM.a( {'data-code':"id", 'data-type':"ID Number", onClick:this.handleClickType, href:"#"}, "ID Number")),
+                        React.DOM.li( {className:"divider"}),
+                        React.DOM.li( {className:"dropdown-submenu"}, 
+                            React.DOM.a( {href:"#"}, "More"),
+                            React.DOM.ul( {className:"dropdown-menu"}, 
+                                React.DOM.li(null, React.DOM.a( {'data-code':"ot", 'data-type':"Text", onClick:this.handleClickType, href:"#"}, "Text")),
+                                React.DOM.li(null, React.DOM.a( {'data-code':"md", 'data-type':"Metadata", onClick:this.handleClickType, href:"#"}, "Metadata")),
+                                React.DOM.li(null, React.DOM.a( {'data-code':"kw", 'data-type':"Keyword", onClick:this.handleClickType, href:"#"}, "Keyword")),
+                                React.DOM.li(null, React.DOM.a( {'data-code':"notes", 'data-type':"Notes", onClick:this.handleClickType, href:"#"}, "Notes"))
+                            )
+                        )
+                    )
+                )
+            );
+        }
+    });
+}());
+
+},{"react":146}],8:[function(require,module,exports){
+/**
+ * @jsx React.DOM
+ */
+var React = require('react');
+
+(function () {
+    'use strict';
+
+    module.exports = React.createClass({displayName: 'exports',
+        focus: function () {
+            this.refs.textInputElement.getDOMNode().focus();
+        },
+        handleChange: function (event) {
+            this.props.enablePhraseFilter();
+            this.props.setTextBoxValue({
+                code: event.target.getAttribute('data-code'),
+                value: event.target.value
+            });
+        },
+        getInitialState: function () {
+            return { value: '' };
+        },
+        render: function () {
+            return (
+                React.DOM.input( {type:"text", value:this.state.value, ref:"textInputElement", onChange:this.handleChange, className:"form-control", placeholder:"Tip: use (*) or (?) to find word variants like legislat* and wom?n"})
+            )
+        }
+    });
+}());
+
+},{"react":146}],9:[function(require,module,exports){
 /**
  * @jsx React.DOM
  */
@@ -285,7 +542,7 @@ var React = require('react');
     });
 }());
 
-},{"react":146}],6:[function(require,module,exports){
+},{"react":146}],10:[function(require,module,exports){
 /**
  * @jsx React.DOM
  */
@@ -323,238 +580,7 @@ var Footer = require('./Footer.jsx');
     );
 }());
 
-},{"./Footer.jsx":1,"./GithubRibbon.jsx":2,"./SearchBuilder.jsx":3,"./SearchResults.jsx":5,"react":146}],7:[function(require,module,exports){
-/**
- * @jsx React.DOM
- */
-var React = require('react');
-
-// TODO: magic value plusOrMinus = "plus" or "minus" should be booleanized or enumed
-
-(function () {
-    'use strict';
-
-    module.exports = React.createClass({displayName: 'exports',
-        getInitialState: function () {
-            return {
-                plusOrMinus: "plus",
-                boolean: ""
-            }
-        },
-        add: function (event) {
-            this.setState({boolean: event.target.getAttribute('data-boolean')});
-
-            if (this.state.plusOrMinus === "plus") {
-                this.setState({plusOrMinus: "minus"});
-                this.props.add(this.props.index);
-            }
-        },
-        remove: function (event) {
-            if (this.state.plusOrMinus === "minus") {
-                this.props.remove(this.props.index);
-            }
-        },
-        render: function () {
-            var revisePulldownStyle = {display: "inherit"};
-            var toggleClass = "";
-            if (this.state.plusOrMinus === "plus") {
-                revisePulldownStyle = {display: "none"}
-                toggleClass = "dropdown-toggle"
-            }
-            return (
-                React.DOM.div( {className:"input-group-btn"}, 
-                    React.DOM.button( {style:revisePulldownStyle, type:"button", className:"btn btn-default dropdown-toggle", 'data-toggle':"dropdown"}, this.state.boolean, " ", React.DOM.span( {className:"caret"})),
-                    React.DOM.button( {type:"button", onClick:this.remove, className:"btn btn-default {toggleClass}", 'data-toggle':"dropdown"}, React.DOM.span( {className:"glyphicon glyphicon-" + this.state.plusOrMinus})),
-                    React.DOM.ul( {className:"dropdown-menu dropdown-menu-right", role:"menu"}, 
-                        React.DOM.li(null, React.DOM.a( {'data-boolean':"AND", onClick:this.add, href:"#"}, "AND")),
-                        React.DOM.li(null, React.DOM.a( {'data-boolean':"OR", onClick:this.add, href:"#"}, "OR")),
-                        React.DOM.li(null, React.DOM.a( {'data-boolean':"NOT", onClick:this.add, href:"#"}, "NOT"))
-                    )
-                )
-            )
-        }
-    });
-}());
-
-},{"react":146}],8:[function(require,module,exports){
-/**
- * @jsx React.DOM
- */
-var React = require('react');
-
-(function () {
-    'use strict';
-
-    var choices = [
-        {key: 'choice0', label: 'for any of the words'},
-        {key: 'choice1', label: 'for all of the words'},
-        {key: 'choice2', label: 'for the exact phrase'}
-    ];
-
-    var excludes = [
-        {key: 'choice3', label: 'excluding the words'},
-        {key: 'choice4', label: 'excluding the phrase'}
-    ];
-
-    module.exports = React.createClass({displayName: 'exports',
-        enable: function () {
-            this.refs.button.getDOMNode().removeAttribute('disabled');
-        },
-        disable: function () {
-            this.refs.button.getDOMNode().setAttribute('disabled', 'disabled');
-        },
-        getInitialState: function () {
-            return {filterPhrase: "for any of the words"};
-        },
-        componentDidUpdate: function () {
-            if (!this.props.showExcludes) {
-                var excludesLabels = excludes.map(function (el) { return el.label });
-                if (excludesLabels.indexOf(this.state.filterPhrase) !== -1) {
-                    this.setState({filterPhrase: choices[0].label});
-                }
-            }
-        },
-        handleClick: function (event) {
-            this.setState({filterPhrase: event.target.getAttribute('data-value')});
-            this.props.focusTextBox();
-        },
-        render: function() {
-            var myChoices = choices;
-            if (this.props.showExcludes) {
-                myChoices = myChoices.concat(excludes);
-            }
-            var renderedChoices = myChoices.map(function (choice) {
-                return React.DOM.li( {key:choice.key}, React.DOM.a( {'data-value':choice.label, onClick:this.handleClick, href:"#"}, choice.label));
-            }.bind(this));
-            return (
-                React.DOM.div( {className:"input-group-btn"}, 
-                    React.DOM.button( {ref:"button", type:"button", className:"btn btn-default dropdown-toggle", 'data-toggle':"dropdown"}, 
-                        this.state.filterPhrase, " ", React.DOM.span( {className:"caret"})
-                    ),
-                    React.DOM.ul( {className:"dropdown-menu", role:"menu"}, 
-                        renderedChoices
-                    )
-                )
-            );
-        }
-    });
-}());
-
-},{"react":146}],9:[function(require,module,exports){
-/**
- * @jsx React.DOM
- */
-var React = require('react');
-
-(function () {
-    'use strict';
-
-    module.exports = React.createClass({displayName: 'exports',
-        getInitialState: function () {
-            return {filterType: "Everything"};
-        },
-        handleClickType: function (event) {
-            this.setState({filterType: event.target.getAttribute('data-type')});
-            this.props.focusTextBox();
-        },
-        handleClickValue: function (event) {
-            this.props.setTextBox(event.target.getAttribute('data-text-value'));
-            this.props.disablePhraseFilter();
-            this.handleClickType(event);
-        },
-        render: function() {
-            return (
-                React.DOM.div( {className:"input-group-btn"}, 
-                    React.DOM.button( {type:"button", className:"btn btn-default dropdown-toggle", 'data-toggle':"dropdown"}, 
-                        this.state.filterType, " ", React.DOM.span( {className:"caret"})
-                    ),
-                    React.DOM.ul( {className:"dropdown-menu", role:"menu"}, 
-                        React.DOM.li(null, React.DOM.a( {'data-type':"Everywhere", onClick:this.handleClickType, href:"#"}, "Everywhere")),
-                        React.DOM.li(null, React.DOM.a( {'data-type':"Title", onClick:this.handleClickType, href:"#"}, "Title")),
-                        React.DOM.li(null, React.DOM.a( {'data-type':"Person", onClick:this.handleClickType, href:"#"}, "Person")),
-                        React.DOM.li(null, React.DOM.a( {'data-type':"Organization", onClick:this.handleClickType, href:"#"}, "Organization")),
-                        React.DOM.li( {className:"dropdown-submenu"}, 
-                            React.DOM.a( {'data-type':"Type", onClick:this.handleClickType, href:"#"}, "Type"),
-                            React.DOM.ul( {className:"dropdown-menu ltdl-filter-what-phrase"}, 
-                                React.DOM.li(null, React.DOM.a( {'data-type':"Type", 'data-text-value':"Letter", onClick:this.handleClickValue, href:"#"}, "Letter")),
-                                React.DOM.li(null, React.DOM.a( {'data-type':"Type", 'data-text-value':"Email", onClick:this.handleClickValue, href:"#"}, "Email")),
-                                React.DOM.li(null, React.DOM.a( {'data-type':"Type", 'data-text-value':"Report", onClick:this.handleClickValue, href:"#"}, "Report")),
-                                React.DOM.li(null, React.DOM.a( {'data-type':"Type", 'data-text-value':"Ad", onClick:this.handleClickValue, href:"#"}, "Ad")),
-                                React.DOM.li(null, React.DOM.a( {'data-type':"Type", 'data-text-value':"Video", onClick:this.handleClickValue, href:"#"}, "Video")),
-                                React.DOM.li(null, React.DOM.a( {'data-type':"Type", 'data-text-value':"Memo", onClick:this.handleClickValue,href:"#"}, "Memo")),
-                                React.DOM.li(null, React.DOM.a( {'data-type':"Type", 'data-text-value':"Newsletter", onClick:this.handleClickValue, href:"#"}, "Newsletter")),
-                                React.DOM.li(null, React.DOM.a( {'data-type':"Type", 'data-text-value':"Journal", onClick:this.handleClickValue, href:"#"}, "Journal")),
-                                React.DOM.li(null, React.DOM.a( {'data-type':"Type", 'data-text-value':"Invoice", onClick:this.handleClickValue, href:"#"}, "Invoice")),
-                                React.DOM.li(null, React.DOM.a( {'data-type':"Type", 'data-text-value':"Financial", onClick:this.handleClickValue, href:"#"}, "Financial")),
-                                React.DOM.li(null, React.DOM.a( {'data-type':"Type", 'data-text-value':"Agenda", onClick:this.handleClickValue, href:"#"}, "Agenda")),
-                                React.DOM.li(null, React.DOM.a( {'data-type':"Type", 'data-text-value':"Form", onClick:this.handleClickValue, href:"#"}, "Form")),
-                                React.DOM.li(null, React.DOM.a( {'data-type':"Type", 'data-text-value':"Article", onClick:this.handleClickValue, href:"#"}, "Article")),
-                                React.DOM.li(null, React.DOM.a( {'data-type':"Type", 'data-text-value':"Audio", onClick:this.handleClickValue, href:"#"}, "Audio")),
-                                React.DOM.li(null, React.DOM.a( {'data-type':"Type", 'data-text-value':"Graphics", onClick:this.handleClickValue, href:"#"}, "Graphics")),
-                                React.DOM.li(null, React.DOM.a( {'data-type':"Type", onClick:this.handleClickType, href:"#"}, "Other"))
-                            )
-                        ),
-                        React.DOM.li( {className:"dropdown-submenu"}, 
-                            React.DOM.a( {'data-type':"Brand Name", onClick:this.handleClickType, href:"#"}, "Brand Name"),
-                            React.DOM.ul( {className:"dropdown-menu ltdl-filter-what-phrase"}, 
-                                React.DOM.li(null, React.DOM.a( {'data-type':"Brand Name", 'data-text-value':"Camel", onClick:this.handleClickValue, href:"#"}, "Camel")),
-                                React.DOM.li(null, React.DOM.a( {'data-type':"Brand Name", 'data-text-value':"Marlboro", onClick:this.handleClickValue, href:"#"}, "Marlboro")),
-                                React.DOM.li(null, React.DOM.a( {'data-type':"Brand Name", 'data-text-value':"Viriginia Slims", onClick:this.handleClickValue, href:"#"}, "Virginia Slims")),
-                                React.DOM.li(null, React.DOM.a( {'data-type':"Brand Name", 'data-text-value':"Skoal", onClick:this.handleClickValue, href:"#"}, "Skoal")),
-                                React.DOM.li(null, React.DOM.a( {'data-type':"Brand Name", 'data-text-value':"Garcia Y Vega", onClick:this.handleClickValue, href:"#"}, "Garcia Y Vega")),
-                                React.DOM.li(null, React.DOM.a( {'data-type':"Brand Name", 'data-text-value':"More", onClick:this.handleClickValue, href:"#"}, "More")),
-                                React.DOM.li(null, React.DOM.a( {'data-type':"Brand Name", 'data-text-value':"Winston", onClick:this.handleClickValue, href:"#"}, "Winston")),
-                                React.DOM.li(null, React.DOM.a( {'data-type':"Brand Name", onClick:this.handleClickType,  href:"#"}, "Other"))
-                            )
-                        ),
-                        React.DOM.li(null, React.DOM.a( {'data-type':"Bates Number", onClick:this.handleClickType, href:"#"}, "Bates Number")),
-                        React.DOM.li(null, React.DOM.a( {'data-type':"ID Number", onClick:this.handleClickType, href:"#"}, "ID Number")),
-                        React.DOM.li( {className:"divider"}),
-                        React.DOM.li( {className:"dropdown-submenu"}, 
-                            React.DOM.a( {href:"#"}, "More"),
-                            React.DOM.ul( {className:"dropdown-menu"}, 
-                                React.DOM.li(null, React.DOM.a( {'data-type':"Text", onClick:this.handleClickType, href:"#"}, "Text")),
-                                React.DOM.li(null, React.DOM.a( {'data-type':"Metadata", onClick:this.handleClickType, href:"#"}, "Metadata")),
-                                React.DOM.li(null, React.DOM.a( {'data-type':"Keyword", onClick:this.handleClickType, href:"#"}, "Keyword")),
-                                React.DOM.li(null, React.DOM.a( {'data-type':"Notes", onClick:this.handleClickType, href:"#"}, "Notes"))
-                            )
-                        )
-                    )
-                )
-            );
-        }
-    });
-}());
-
-},{"react":146}],10:[function(require,module,exports){
-/**
- * @jsx React.DOM
- */
-var React = require('react');
-
-(function () {
-    'use strict';
-
-    module.exports = React.createClass({displayName: 'exports',
-        focus: function () {
-            this.refs.textInputElement.getDOMNode().focus();
-        },
-        handleChange: function (event) {
-            this.props.enablePhraseFilter();
-            this.props.setTextBoxValue(event.target.value);
-        },
-        getInitialState: function () {
-            return { value: '' };
-        },
-        render: function () {
-            return (
-                React.DOM.input( {type:"text", value:this.state.value, ref:"textInputElement", onChange:this.handleChange, className:"form-control", placeholder:"Tip: use (*) or (?) to find word variants like legislat* and wom?n"})
-            )
-        }
-    });
-}());
-
-},{"react":146}],11:[function(require,module,exports){
+},{"./Footer.jsx":1,"./GithubRibbon.jsx":2,"./SearchBuilder.jsx":3,"./SearchResults.jsx":9,"react":146}],11:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -17947,4 +17973,4 @@ module.exports = warning;
 },{"./emptyFunction":107,"/Users/richtrott/ltdl3-client/node_modules/browserify/node_modules/insert-module-globals/node_modules/process/browser.js":11}],146:[function(require,module,exports){
 module.exports = require('./lib/React');
 
-},{"./lib/React":35}]},{},[6])
+},{"./lib/React":35}]},{},[10])
