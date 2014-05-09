@@ -213,15 +213,15 @@ var searchBuilderAdd = require('./SearchBuilderAdd.jsx');
         focusTextBox: function () {
             this.refs.textBox.focus();
         },
-        setTextBoxValue: function (query) {
+        setTextBoxValue: function (term) {
             var code = this.refs.typeFilter.getCode();
-            if (query) {
-                this.refs.textBox.setState({value: query.value});
+            if (term) {
+                this.refs.textBox.setState({value: term.value});
                 this.props.setQueryExpression(
-                    query.value,
+                    term.value,
                     code,
                     this.props.index,
-                    {glue: this.refs.phraseFilter.getGlue()}
+                    {glueType: this.refs.phraseFilter.getGlue()}
                 );
             } else {
                 this.props.setQueryCode(code, this.props.index);
@@ -266,19 +266,20 @@ var searchBuilderAdd = require('./SearchBuilderAdd.jsx');
  * @jsx React.DOM
  */
 var React = require('react');
+var query = require('./query.js');
 
 (function () {
     'use strict';
 
     var choices = [
-        {key: 'choice0', glue: 'or', label: 'for any of the words'},
-        {key: 'choice1', glue: 'and', label: 'for all of the words'},
-        {key: 'choice2', glue: 'phrase', label: 'for the exact phrase'}
+        {key: 'choice0', glue: query.enumGlueTypes.or, label: 'for any of the words'},
+        {key: 'choice1', glue: query.enumGlueTypes.and, label: 'for all of the words'},
+        {key: 'choice2', glue: query.enumGlueTypes.phrase, label: 'for the exact phrase'}
     ];
 
     var excludes = [
-        {key: 'choice3', glue: 'not', label: 'excluding the words'},
-        {key: 'choice4', glue: 'notPhrase', label: 'excluding the phrase'}
+        {key: 'choice3', glue: query.enumGlueTypes.not, label: 'excluding the words'},
+        {key: 'choice4', glue: query.enumGlueTypes.notPhrase, label: 'excluding the phrase'}
     ];
 
     var glue = choices[0].glue;
@@ -332,7 +333,7 @@ var React = require('react');
     });
 }());
 
-},{"react":147}],7:[function(require,module,exports){
+},{"./query.js":11,"react":147}],7:[function(require,module,exports){
 /**
  * @jsx React.DOM
  */
@@ -624,6 +625,7 @@ var Footer = require('./Footer.jsx');
     module.exports.setQueryExpression = function (term, field, index, options) {
         options = options || {};
         options.glueType = options.glueType || enumGlueTypes.or;
+        console.dir(options);
         queryExpressions[index] = {
             term: term,
             field: field,
