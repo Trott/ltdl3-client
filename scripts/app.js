@@ -623,7 +623,7 @@ var Footer = require('./Footer.jsx');
 
     module.exports.setQueryExpression = function (term, field, index, options) {
         options = options || {};
-        options.glueType = options.glueType || this.enumGlueTypes.or;
+        options.glueType = options.glueType || enumGlueTypes.or;
         queryExpressions[index] = {
             term: term,
             field: field,
