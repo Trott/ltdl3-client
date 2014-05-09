@@ -98,7 +98,6 @@ var query = require('./query');
                 components: components
             });
         },
-        setQueryExpression: query.setQueryExpression,
         handleSubmit: function () {
             this.props.showResults({loading: true, data: {}});
             $.ajax({
@@ -209,7 +208,6 @@ var searchBuilderAdd = require('./SearchBuilderAdd.jsx');
 
 (function () {
     'use strict';
-    var queryExpression = '';
 
     module.exports = React.createClass({displayName: 'exports',
         focusTextBox: function () {
@@ -219,7 +217,12 @@ var searchBuilderAdd = require('./SearchBuilderAdd.jsx');
             var code = this.refs.typeFilter.getCode();
             if (query) {
                 this.refs.textBox.setState({value: query.value});
-                this.props.setQueryExpression(query.value, code, this.props.index);
+                this.props.setQueryExpression(
+                    query.value,
+                    code,
+                    this.props.index,
+                    {glue: this.refs.phraseFilter.getGlue()}
+                );
             } else {
                 this.props.setQueryCode(code, this.props.index);
             }
@@ -268,15 +271,17 @@ var React = require('react');
     'use strict';
 
     var choices = [
-        {key: 'choice0', label: 'for any of the words'},
-        {key: 'choice1', label: 'for all of the words'},
-        {key: 'choice2', label: 'for the exact phrase'}
+        {key: 'choice0', glue: 'or', label: 'for any of the words'},
+        {key: 'choice1', glue: 'and', label: 'for all of the words'},
+        {key: 'choice2', glue: 'phrase', label: 'for the exact phrase'}
     ];
 
     var excludes = [
-        {key: 'choice3', label: 'excluding the words'},
-        {key: 'choice4', label: 'excluding the phrase'}
+        {key: 'choice3', glue: 'not', label: 'excluding the words'},
+        {key: 'choice4', glue: 'notPhrase', label: 'excluding the phrase'}
     ];
+
+    var glue = choices[0].glue;
 
     module.exports = React.createClass({displayName: 'exports',
         enable: function () {
@@ -285,19 +290,24 @@ var React = require('react');
         disable: function () {
             this.refs.button.getDOMNode().setAttribute('disabled', 'disabled');
         },
+        getGlue: function () {
+            return glue;
+        },
         getInitialState: function () {
-            return {filterPhrase: "for any of the words"};
+            return {filterPhrase: choices[0].label};
         },
         componentDidUpdate: function () {
             if (!this.props.showExcludes) {
                 var excludesLabels = excludes.map(function (el) { return el.label });
                 if (excludesLabels.indexOf(this.state.filterPhrase) !== -1) {
                     this.setState({filterPhrase: choices[0].label});
+                    glue = choices[0].glue;
                 }
             }
         },
         handleClick: function (event) {
             this.setState({filterPhrase: event.target.getAttribute('data-value')});
+            glue = event.target.getAttribute('data-glue');
             this.props.focusTextBox();
         },
         render: function() {
@@ -306,7 +316,7 @@ var React = require('react');
                 myChoices = myChoices.concat(excludes);
             }
             var renderedChoices = myChoices.map(function (choice) {
-                return React.DOM.li( {key:choice.key}, React.DOM.a( {'data-value':choice.label, onClick:this.handleClick, href:"#"}, choice.label));
+                return React.DOM.li( {key:choice.key}, React.DOM.a( {'data-value':choice.label, 'data-glue':choice.glue, onClick:this.handleClick, href:"#"}, choice.label));
             }.bind(this));
             return (
                 React.DOM.div( {className:"input-group-btn"}, 
@@ -572,10 +582,52 @@ var Footer = require('./Footer.jsx');
     'use strict';
     var queryExpressions = [];
 
-    module.exports.setQueryExpression = function (term, field, index) {
+    var regexTerm = /([\w:!]+)/g;
+    var regexNonTerm = /[^\w:!]+/g;
+
+    var glue = function (term, type, field) {
+        var rv;
+        switch (type) {
+        case enumGlueTypes.or:
+            rv = term.replace(regexTerm, field + ':$1');
+            rv = rv.replace(regexNonTerm, ' OR ');
+            break;
+        case enumGlueTypes.and:
+            rv = term.replace(regexTerm, field + ':$1');
+            rv = rv.replace(regexNonTerm, ' AND ');
+            break;
+        case enumGlueTypes.phrase:
+            rv = field + ':"' + term + '"';
+            break;
+        case enumGlueTypes.not:
+            rv = term.replace(regexTerm, '!' + field + ':$1');
+            rv = rv.replace(regexNonTerm, ' AND ');
+            break;
+        case enumGlueTypes.notPhrase:
+            rv = '!' + field + ':"' + term + '"';
+            break;
+        }
+
+        return rv;
+    };
+
+    var enumGlueTypes = {
+        or: 1,
+        and: 2,
+        phrase: 3,
+        not: 4,
+        notPhrase: 5
+    };
+
+    module.exports.enumGlueTypes = enumGlueTypes;
+
+    module.exports.setQueryExpression = function (term, field, index, options) {
+        options = options || {};
+        options.glueType = options.glueType || this.enumGlueTypes.or;
         queryExpressions[index] = {
             term: term,
-            field: field
+            field: field,
+            glueType: options.glueType
         };
     };
 
@@ -583,15 +635,23 @@ var Footer = require('./Footer.jsx');
         return queryExpressions.reduce(function(prev, cur) {
             var rv = prev;
             if (cur) {
+                var gluedTerm = glue(cur.term, cur.glueType, cur.field);
                 var joiner = prev.length ? ' ' : '';
-                rv += joiner + cur.field + ':' + cur.term;
+                rv += joiner + gluedTerm;
             }
-            return rv;
+            return '(' + rv + ')';
         }, '');
     };
 
     module.exports.setField = function (field, index) {
+        if (! queryExpressions[index]) {
+            this.setQueryExpression('', field, index);
+        }
         queryExpressions[index].field = field;
+    };
+
+    module.exports.resetQuery = function () {
+        queryExpressions = [];
     };
 }());
 
