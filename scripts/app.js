@@ -65,7 +65,6 @@ var query = require('./query');
                 {value:"",
                 key:"comp"+(index+1),
                 index:index+1,
-                showExcludes:true,
                 add:this.add,
                 remove:this.remove,
                 setQueryExpression:query.setQueryExpression,
@@ -76,25 +75,6 @@ var query = require('./query');
         },
         remove: function (index) {
             var components = this.state.components;
-            // If deleting the first component, turn off excludes for the new first component
-            if (!components[index].props.showExcludes) {
-                var firstIndex = index+1;
-                while (!components[firstIndex]) {
-                    firstIndex++;
-                }
-                var first = components[firstIndex];
-                components[firstIndex] =
-                    SearchBuilderComponent(
-                        {value:  first.props.value,
-                        key:first.props.key,
-                        index:first.props.index,
-                        showExcludes:false,
-                        add:first.props.add,
-                        remove:first.props.remove,
-                        setQueryExpression:first.props.setQueryExpression,
-                        deleteQueryExpression:query.deleteQueryExpression}
-                    );
-            }
             delete(components[index]);
             this.setState({
                 components: components
@@ -120,7 +100,6 @@ var query = require('./query');
                         {value:"",
                         key:"comp0",
                         index:0,
-                        showExcludes:false,
                         add:this.add,
                         remove:this.remove,
                         setQueryExpression:query.setQueryExpression,
@@ -251,7 +230,6 @@ var searchBuilderAdd = require('./SearchBuilderAdd.jsx');
                         searchBuilderFilterPhrase(
                             {ref:"phraseFilter",
                             focusTextBox:this.focusTextBox,
-                            showExcludes:this.props.showExcludes,
                             index:this.props.index,
                             setQueryExpression:this.props.setQueryExpression}
                         ),
@@ -289,11 +267,6 @@ var query = require('./query.js');
         {key: 'choice2', glue: 'phrase', label: 'for the exact phrase'}
     ];
 
-    var excludes = [
-        {key: 'choice3', glue: 'not', label: 'excluding the words'},
-        {key: 'choice4', glue: 'notPhrase', label: 'excluding the phrase'}
-    ];
-
     module.exports = React.createClass({displayName: 'exports',
         enable: function () {
             this.refs.button.getDOMNode().removeAttribute('disabled');
@@ -304,26 +277,13 @@ var query = require('./query.js');
         getInitialState: function () {
             return {filterPhrase: choices[0].label};
         },
-        componentDidUpdate: function () {
-            if (!this.props.showExcludes) {
-                var excludesLabels = excludes.map(function (el) { return el.label });
-                if (excludesLabels.indexOf(this.state.filterPhrase) !== -1) {
-                    this.setState({filterPhrase: choices[0].label});
-                    this.props.setQueryExpression(this.props.index, {glueType: query.enumGlueTypes[choices[0].glue]});
-                }
-            }
-        },
         handleClick: function (event) {
             this.setState({filterPhrase: event.target.getAttribute('data-value')});
             this.props.setQueryExpression(this.props.index, {glueType: query.enumGlueTypes[event.target.getAttribute('data-glue')]});
             this.props.focusTextBox();
         },
         render: function() {
-            var myChoices = choices;
-            if (this.props.showExcludes) {
-                myChoices = myChoices.concat(excludes);
-            }
-            var renderedChoices = myChoices.map(function (choice) {
+            var renderedChoices = choices.map(function (choice) {
                 return React.DOM.li( {key:choice.key}, React.DOM.a( {'data-value':choice.label, 'data-glue':choice.glue, onClick:this.handleClick, href:"#"}, choice.label));
             }.bind(this));
             return (
