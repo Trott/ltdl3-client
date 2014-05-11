@@ -572,9 +572,6 @@ var Footer = require('./Footer.jsx');
             rv += term.replace(regexTerm, '!' + field + ':$1');
             rv = rv.replace(regexNonTerm, ' AND ');
             break;
-        case enumGlueTypes.notPhrase:
-            rv += '!' + field + ':"' + term + '"';
-            break;
         }
 
         return rv;
@@ -584,8 +581,7 @@ var Footer = require('./Footer.jsx');
         or: 1,
         and: 2,
         phrase: 3,
-        not: 4,
-        notPhrase: 5
+        not: 4
     };
 
     module.exports.enumGlueTypes = enumGlueTypes;
