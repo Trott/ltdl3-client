@@ -79,12 +79,7 @@ var SearchBuilderAdd = require('../../app/scripts/SearchBuilderAdd.jsx');
             it('should use NOT if specified', function () {
                 query.setQueryExpression(1, {term: 'foo bar', field: 'er', glueType: query.enumGlueTypes.not});
                 expect(query.getQueryString()).toBe('(!er:foo AND !er:bar)');
-            })
-
-            it('should use NOT phrase if specified', function () {
-                query.setQueryExpression(1, {term: 'foo bar', field: 'er', glueType: query.enumGlueTypes.notPhrase});
-                expect(query.getQueryString()).toBe('(!er:"foo bar")');
-            })
+            });
 
             it('should be able to change the code without changing the term', function () {
                 query.setQueryExpression(1, {term: 'foo', field: 'er'});
