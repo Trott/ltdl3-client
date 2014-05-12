@@ -31,7 +31,7 @@ var React = require('react');
         render: function() {
             return (
                 <div className="input-group-btn">
-                    <button type="button" className="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                    <button type="button" className="typeFilter btn btn-default dropdown-toggle" data-toggle="dropdown">
                         {this.state.filterType} <span className="caret"></span>
                     </button>
                     <ul className="dropdown-menu" role="menu">
