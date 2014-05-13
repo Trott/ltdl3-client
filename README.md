@@ -1,11 +1,15 @@
-LTDL3-client
+LTDL3-client (tab's fork)
 ============
+
+## If you have questions
+
+Talk to this guy: https://github.com/Trott
 
 ## Demo
 
 Oh, hey, there's a live demo, if you want to see this in action. For now, though, unfortunately, you need to be on the UCSF network for it to work because the backend server this talks to is currently firewalled off. Harumph.
 
-Demo: http://trott.github.io/ltdl3-client
+Demo: http://tmcdev.github.io/ltdl3-client
 
 ## Installation instructions
 
