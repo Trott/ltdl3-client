@@ -51,8 +51,11 @@
 
 /* More than one button to the left of the search box */
 
+/* Tab's new styles */
 .typeFilter {width:130px;}
 .phraseFilter {width:160px;}
+.typeFilter, .phraseFilter {text-align:left;}
+/* end Tab's new styles */
 
 .input-group .form-control, .input-group-addon, .input-group-btn > .btn, .input-group-btn > .dropdown-toggle {
     border-radius: 0;
