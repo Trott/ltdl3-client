@@ -527,7 +527,7 @@ var Footer = require('./Footer.jsx');
                 React.DOM.div( {className:"container"}, 
                     GithubRibbon(null),
                     React.DOM.h1(null, "Search the Legacy Tobacco Documents"),
-                    SearchBuilder( {showResults:this.showResults, url:"http://solr1.mooo.com:8983/solr/ltdl3test/select"}),
+                    SearchBuilder( {showResults:this.showResults, url:"http://apis.ucsf.edu/solr/ltdl3test/select"}),
                     SearchResults( {ref:"results"}),
                     Footer(null)
                 )
