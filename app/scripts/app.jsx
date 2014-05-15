@@ -37,20 +37,9 @@ var App = Backbone.Router.extend({
     }
 });
 
-var ltdlApp;
-
-var loadOrUpdateComponent = function loadOrUpdateComponent(urlState) {
-    if (!ltdlApp) {
-        ltdlApp = <LtdlApp urlState={urlState}/>
-        React.renderComponent(ltdlApp, appDomElement);
-    } else {
-        ltdlApp.setProps({urlState:urlState})
-    }
-};
-
 var app = new App();
 app.on('route', function(page) {
-    loadOrUpdateComponent(page)
+    React.renderComponent(<LtdlApp/>, appDomElement);
 });
 
 Backbone.history.start();
