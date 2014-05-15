@@ -2,35 +2,55 @@
  * @jsx React.DOM
  */
 var React = require('react');
+var Backbone = require('backbone');
+Backbone.$ = $;
+
 var GithubRibbon = require('./GithubRibbon.jsx');
 var SearchBuilder = require('./SearchBuilder.jsx');
 var SearchResults = require('./SearchResults.jsx');
 var Footer = require('./Footer.jsx');
 
-(function () {
-    'use strict';
-
 /* TODO: Subcomponents use data- attributes. Use props instead. */
 
-    var LtdlApp = React.createClass({
-        showResults: function (results) {
-            this.refs.results.show(results);
-        },
-        render: function () {
-            return (
-                <div className="container">
-                    <GithubRibbon/>
-                    <h1>Search the Legacy Tobacco Documents</h1>
-                    <SearchBuilder showResults={this.showResults} url="http://apis.ucsf.edu/solr/ltdl3test/select"/>
-                    <SearchResults ref="results"/>
-                    <Footer/>
-                </div>
-            );
-        }
-    });
+var appDomElement = document.getElementById('content');
 
-    React.renderComponent(
-        <LtdlApp/>,
-        document.getElementById('content')
-    );
-}());
+var LtdlApp = React.createClass({
+    showResults: function (results) {
+        this.refs.results.show(results);
+    },
+    render: function () {
+        return (
+            <div className="container">
+                <GithubRibbon/>
+                <h1>Search the Legacy Tobacco Documents</h1>
+                <SearchBuilder showResults={this.showResults} url="http://apis.ucsf.edu/solr/ltdl3test/select"/>
+                <SearchResults ref="results"/>
+                <Footer/>
+            </div>
+        );
+    }
+});
+
+var App = Backbone.Router.extend({
+    routes: {
+        "": "default"
+    }
+});
+
+var ltdlApp;
+
+var loadOrUpdateComponent = function loadOrUpdateComponent(urlState) {
+    if (!ltdlApp) {
+        ltdlApp = <LtdlApp urlState={urlState}/>
+        React.renderComponent(ltdlApp, appDomElement);
+    } else {
+        ltdlApp.setProps({urlState:urlState})
+    }
+};
+
+var app = new App();
+app.on('route', function(page) {
+    loadOrUpdateComponent(page)
+});
+
+Backbone.history.start();
