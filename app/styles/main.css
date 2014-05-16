@@ -71,3 +71,25 @@
 h1 {
     font-size: 30px;
 }
+.white-icon{
+    color:#ffffff;
+}
+.white-icon:hover{
+    color:#31b5d5;
+}
+.row-bool-group{
+    box-sizing:border-box;
+    -moz-box-sizing:border-box;
+    -webkit-box-sizing:border-box;
+    border:1px solid #a5a5a5 !important;
+}
+.bool-button {
+    width:70px;
+    border:none;
+    background-color:#c0c0c0 !important;
+}
+
+.add-del-button{
+    border:none;
+    background-color:#c0c0c0 !important;
+}
