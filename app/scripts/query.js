@@ -2,8 +2,8 @@ var Query = function () {
     'use strict';
     var queryExpressions = [];
 
-    var regexTerm = /([\w:!\*]+)/g;
-    var regexNonTerm = /[^\w:!\*]+/g;
+    var regexTerm    = /([\w\+\-&\|!\(\){}\[\]\^"~\*\?:\\]+)/g;
+    var regexNonTerm = /[^\w\+\-&\|!\(\){}\[\]\^"~\*\?:\\]+/g;
 
     var glue = function (term, type, field) {
         var rv = '';
