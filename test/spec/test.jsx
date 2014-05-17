@@ -47,6 +47,23 @@ var SearchBuilderAdd = require('../../app/scripts/SearchBuilderAdd.jsx');
                 query.setQueryExpression(4, settings);
                 expect(query.getQueryString()).toBe('(ti:"foo bar")');
             });
+
+            it('should allow predetermined special chars', function () {
+                query.setQueryExpression(1, {term: '+foo -bar'});
+                expect(query.getQueryString()).toBe('(er:+foo OR er:-bar)');
+
+                query.setQueryExpression(1, {term: 'a&&b||c'});
+                expect(query.getQueryString()).toBe('(er:a&&b||c)');
+
+                query.setQueryExpression(1, {term: '!({[^"foo"]})'});
+                expect(query.getQueryString()).toBe('(er:!({[^"foo"]}))');
+
+                query.setQueryExpression(1, {term: '~a*b?'});
+                expect(query.getQueryString()).toBe('(er:~a*b?)');
+
+                query.setQueryExpression(1, {term: 'ti:\\(literal parentheses\\)', glueType: query.enumGlueTypes.phrase});
+                expect(query.getQueryString()).toBe('(er:"ti:\\(literal parentheses\\)")');
+            });
         });
 
         describe('setQueryExpression()', function () {
