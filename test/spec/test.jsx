@@ -48,7 +48,7 @@ var SearchBuilderAdd = require('../../app/scripts/SearchBuilderAdd.jsx');
                 expect(query.getQueryString()).toBe('(ti:"foo bar")');
             });
 
-            it('should allow predetermined special chars', function () {
+            it('should allow special chars allowed in Solr queries', function () {
                 query.setQueryExpression(1, {term: '+foo -bar'});
                 expect(query.getQueryString()).toBe('(er:+foo OR er:-bar)');
 
@@ -63,6 +63,11 @@ var SearchBuilderAdd = require('../../app/scripts/SearchBuilderAdd.jsx');
 
                 query.setQueryExpression(1, {term: 'ti:\\(literal parentheses\\)', glueType: query.enumGlueTypes.phrase});
                 expect(query.getQueryString()).toBe('(er:"ti:\\(literal parentheses\\)")');
+            });
+
+            it('should ignore special chars that are invalid in Solr queries', function () {
+                query.setQueryExpression(1, {term: 'yo%plait'});
+                expect(query.getQueryString()).toBe('(er:yo OR er:plait)');
             });
         });
 
