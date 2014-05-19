@@ -208,11 +208,11 @@ var SearchBuilderAdd = require('../../app/scripts/SearchBuilderAdd.jsx');
                 expect(td.showResults).toHaveBeenCalled();
             });
 
-            it('should only allow explicitly permitted chars in queryString', function() {
+            xit('should only allow explicitly permitted chars in queryString', function() {
 
             });
 
-            it('should put passed queryString into search box', function () {
+            xit('should put passed queryString into search box', function () {
 
             });
         });
