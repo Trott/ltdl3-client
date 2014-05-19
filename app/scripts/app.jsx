@@ -14,17 +14,23 @@ var Footer = require('./Footer.jsx');
 
 var appDomElement = document.getElementById('content');
 
+var searchResultsData;
+
 var LtdlApp = React.createClass({
     showResults: function (results) {
-        this.refs.results.show(results);
+        if (this.refs.results) {
+            this.refs.results.show(results);
+        } else {
+            searchResutsData = results;
+        }
     },
     render: function () {
         return (
             <div className="container">
                 <GithubRibbon/>
                 <h1>Search the Legacy Tobacco Documents</h1>
-                <SearchBuilder showResults={this.showResults} url="http://apis.ucsf.edu/solr/ltdl3test/select"/>
-                <SearchResults ref="results"/>
+                <SearchBuilder router={this.props.router} queryString={this.props.queryString} showResults={this.showResults} url="http://apis.ucsf.edu/solr/ltdl3test/select"/>
+                <SearchResults ref="results" searchResultsData={searchResultsData} />
                 <Footer/>
             </div>
         );
@@ -33,13 +39,19 @@ var LtdlApp = React.createClass({
 
 var App = Backbone.Router.extend({
     routes: {
-        "": "default"
+        "search/:queryString": "search",
+        "*path": "default"
     }
 });
 
 var app = new App();
-app.on('route', function(page) {
-    React.renderComponent(<LtdlApp/>, appDomElement);
+
+app.on('route:search', function(queryString) {
+    var page = React.renderComponent(<LtdlApp router={app} queryString={queryString}/>, appDomElement);
+})
+
+app.on('route:default', function() {
+    React.renderComponent(<LtdlApp router={app}/>, appDomElement);
 });
 
 Backbone.history.start();

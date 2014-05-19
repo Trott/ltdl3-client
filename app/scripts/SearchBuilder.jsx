@@ -30,17 +30,22 @@ var query = new Query();
                 components: components
             });
         },
-        handleSubmit: function () {
+        runSearch: function (queryString) {
             this.props.showResults({loading: true, data: {}});
             $.ajax({
                 url: this.props.url,
                 type: 'GET',
-                data: {q: query.getQueryString(), wt: 'json'},
+                data: {q: queryString, wt: 'json'},
                 dataType: 'json',
                 success: function(data) {
                     this.props.showResults({loading: false, data: data});
                 }.bind(this)
             });
+        },
+        handleSubmit: function () {
+            var queryString = query.getQueryString();
+            this.runSearch(queryString);
+            this.props.router.navigate('search/' + queryString);
             return false;
         },
         getInitialState: function () {
@@ -57,6 +62,9 @@ var query = new Query();
             }
         },
         render: function() {
+            if (this.props.queryString) {
+                this.runSearch(this.props.queryString);
+            }
             return (
                 <div className="jumbotron">
                     <form onSubmit={this.handleSubmit} role="form">
