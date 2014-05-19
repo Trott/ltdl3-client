@@ -10,6 +10,11 @@ var React = require('react');
         getInitialState: function () {
             return {};
         },
+        componentDidMount: function () {
+            if (this.props.searchResultsData) {
+                this.show(this.props.searchResultData);
+            }
+        },
         show: function (value) {
             this.setState(value);
         },

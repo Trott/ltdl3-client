@@ -187,6 +187,34 @@ var SearchBuilderAdd = require('../../app/scripts/SearchBuilderAdd.jsx');
                 );
                 expect(ReactTestUtils.findRenderedComponentWithType(builder, SearchBuilderFilterType)).toBeTruthy();
             });
+
+            it('should not call showResults() if no queryString passed', function () {
+                var td = {showResults: function () {}};
+                spyOn(td, 'showResults');
+                var builder = ReactTestUtils.renderIntoDocument(
+                    <SearchBuilder showResults={td.showResults}/>
+                );
+                expect(td.showResults).not.toHaveBeenCalled();
+            });
+
+            it('should call showResults() if queryString passed', function () {
+                // jQuery test double
+                window.$ = {ajax: function () {}};
+                var td = {showResults: function () {}};
+                spyOn(td, 'showResults');
+                var builder = ReactTestUtils.renderIntoDocument(
+                    <SearchBuilder showResults={td.showResults} queryString="(er:foo)"/>
+                );
+                expect(td.showResults).toHaveBeenCalled();
+            });
+
+            xit('should only allow explicitly permitted chars in queryString', function() {
+
+            });
+
+            xit('should put passed queryString into search box', function () {
+
+            });
         });
 
         describe('SearchBuilderComponent', function () {
