@@ -1,42 +1,46 @@
+'use strict';
+
+var regexTerm    = /([\w\+\-&\|!\(\){}\[\]\^"~\*\?:\\]+)/g;
+var regexNonTerm = /[^\w\+\-&\|!\(\){}\[\]\^"~\*\?:\\]+/g;
+
+var enumGlueTypes = {
+    or: 1,
+    and: 2,
+    phrase: 3,
+    not: 4
+};
+
+var glue = function (term, type, field) {
+    var rv = '';
+
+    switch (type) {
+    case enumGlueTypes.or:
+        rv += term.replace(regexTerm, field + ':$1');
+        rv = rv.replace(regexNonTerm, ' OR ');
+        break;
+    case enumGlueTypes.and:
+        rv += term.replace(regexTerm, field + ':$1');
+        rv = rv.replace(regexNonTerm, ' AND ');
+        break;
+    case enumGlueTypes.phrase:
+        rv += field + ':"' + term + '"';
+        break;
+    case enumGlueTypes.not:
+        rv += term.replace(regexTerm, '-' + field + ':$1');
+        rv = rv.replace(regexNonTerm, ' AND ');
+        break;
+    }
+
+    return rv;
+};
+
 var Query = function () {
-    'use strict';
+
+    if (!(this instanceof Query)) {
+        return new Query();
+    }
+
     var queryExpressions = [];
-
-    var regexTerm    = /([\w\+\-&\|!\(\){}\[\]\^"~\*\?:\\]+)/g;
-    var regexNonTerm = /[^\w\+\-&\|!\(\){}\[\]\^"~\*\?:\\]+/g;
-
-    var glue = function (term, type, field) {
-        var rv = '';
-
-        switch (type) {
-        case enumGlueTypes.or:
-            rv += term.replace(regexTerm, field + ':$1');
-            rv = rv.replace(regexNonTerm, ' OR ');
-            break;
-        case enumGlueTypes.and:
-            rv += term.replace(regexTerm, field + ':$1');
-            rv = rv.replace(regexNonTerm, ' AND ');
-            break;
-        case enumGlueTypes.phrase:
-            rv += field + ':"' + term + '"';
-            break;
-        case enumGlueTypes.not:
-            rv += term.replace(regexTerm, '-' + field + ':$1');
-            rv = rv.replace(regexNonTerm, ' AND ');
-            break;
-        }
-
-        return rv;
-    };
-
-    var enumGlueTypes = {
-        or: 1,
-        and: 2,
-        phrase: 3,
-        not: 4
-    };
-
-    this.enumGlueTypes = enumGlueTypes;
 
     this.setQueryExpression = function (index, settings) {
         var defaults = { term: '*', field: 'er', glueType: enumGlueTypes.or, glueTypeNextTerm: enumGlueTypes.or };
@@ -82,5 +86,7 @@ var Query = function () {
         }, '');
     };
 };
+
+Query.prototype.enumGlueTypes = enumGlueTypes;
 
 module.exports = Query;

@@ -36,6 +36,11 @@ var SearchBuilderAdd = require('../../app/scripts/SearchBuilderAdd.jsx');
         it('should expose deleteQueryExpression', function () {
             expect(query.deleteQueryExpression).toEqual(jasmine.any(Function));
         });
+        it('should instantiate with or without new operator', function () {
+            var otherQuery = Query();
+            expect(query instanceof Query).toBe(true);
+            expect(otherQuery instanceof Query).toBe(true);
+        });
 
         describe('getQueryString()', function () {
             it('should return an empty string initially', function () {
