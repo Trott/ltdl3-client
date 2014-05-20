@@ -42,8 +42,6 @@ var Query = function () {
 
     var queryExpressions = [];
 
-    this.enumGlueTypes = enumGlueTypes;
-
     this.setQueryExpression = function (index, settings) {
         var defaults = { term: '*', field: 'er', glueType: enumGlueTypes.or, glueTypeNextTerm: enumGlueTypes.or };
         settings = settings || defaults;
@@ -88,5 +86,7 @@ var Query = function () {
         }, '');
     };
 };
+
+Query.prototype.enumGlueTypes = enumGlueTypes;
 
 module.exports = Query;
