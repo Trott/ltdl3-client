@@ -21,7 +21,7 @@ var Query = function () {
             rv += field + ':"' + term + '"';
             break;
         case enumGlueTypes.not:
-            rv += term.replace(regexTerm, '!' + field + ':$1');
+            rv += term.replace(regexTerm, '-' + field + ':$1');
             rv = rv.replace(regexNonTerm, ' AND ');
             break;
         }
