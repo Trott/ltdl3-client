@@ -14,6 +14,7 @@ var React = require('react');
             }
         },
         add: function (event) {
+            event.preventDefault();
             this.setState({label: event.target.getAttribute('data-label')});
 
             if (this.state.isAdd) {
@@ -21,7 +22,6 @@ var React = require('react');
                 this.props.add(this.props.index);
             }
             this.props.queryBuilder.setQueryExpression(this.props.index, {glueTypeNextTerm: this.props.queryBuilder.enumGlueTypes[event.target.getAttribute('data-value')]});
-            return false;
         },
         remove: function () {
             if (! this.state.isAdd) {

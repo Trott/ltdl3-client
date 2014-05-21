@@ -316,12 +316,13 @@ var SearchBuilderAdd = require('../../app/scripts/SearchBuilderAdd.jsx');
             });
 
             it('should have handler for add that returns false to avoid navigation on clicks', function () {
-                var tdEvent = {target: document.createElement('div')};
-                var noop = function () {};
+                var tdEvent = {target: document.createElement('div'), preventDefault: function () {}};
                 var addButton = ReactTestUtils.renderIntoDocument(
-                    <SearchBuilderAdd add={noop} index={0} queryBuilder={query}/>
+                    <SearchBuilderAdd add={function () {}} index={0} queryBuilder={query}/>
                 );
-                expect(addButton.add(tdEvent)).toBe(false);
+                spyOn(tdEvent, 'preventDefault');
+                expect(addButton.add(tdEvent));
+                expect(tdEvent.preventDefault).toHaveBeenCalled();
             });
         })
     });
