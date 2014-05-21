@@ -231,33 +231,6 @@ var SearchBuilderAdd = require('../../app/scripts/SearchBuilderAdd.jsx');
                 expect(td.showResults).toHaveBeenCalled();
             });
 
-            xit('should expand unqualified searches to search everything', function () {
-                spyOn(window.$, 'ajax');
-                var td= {noop: function () {}};
-                var builder = ReactTestUtils.renderIntoDocument(
-                    <SearchBuilder showResults={td.noop} queryString="foo"/>
-                );
-                expect(window.$.ajax.calls.mostRecent().args[0].data.q).toBe("(er:foo)");
-            })
-
-            xit('should use simple valid queryString values', function () {
-                spyOn(window.$, 'ajax');
-                var td = {noop: function () {}};
-                var builder = ReactTestUtils.renderIntoDocument(
-                    <SearchBuilder showResults={td.noop} queryString="(er:foo)"/>
-                );
-                expect(window.$.ajax.calls.mostRecent().args[0].data.q).toBe("(er:foo)");
-            });
-
-            xit('should only allow explicitly permitted chars in queryString', function() {
-                spyOn(window.$, 'ajax');
-                var td = {noop: function () {}};
-                var builder = ReactTestUtils.renderIntoDocument(
-                    <SearchBuilder showResults={td.noop} queryString="(er:foo@)"/>
-                );
-                expect(window.$.ajax.calls.mostRecent().args[0].data.q).toBe("(er:foo)");
-            });
-
             xit('should put passed queryString into search box', function () {
 
             });
