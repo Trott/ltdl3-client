@@ -4,7 +4,7 @@
 var React = require('react');
 var searchBuilderFilterType = require('./SearchBuilderFilterType.jsx');
 var searchBuilderFilterPhrase = require('./SearchBuilderFilterPhrase.jsx');
-var searchBuilderTextBox = require('./SearchBuilderTextBox.jsx');
+var SearchTextBox = require('./SearchTextBox.jsx');
 var searchBuilderAdd = require('./SearchBuilderAdd.jsx');
 
 (function () {
@@ -54,7 +54,7 @@ var searchBuilderAdd = require('./SearchBuilderAdd.jsx');
                             index={this.props.index}
                             queryBuilder={this.props.queryBuilder}
                         />
-                        <searchBuilderTextBox
+                        <SearchTextBox
                             setTextBoxValue={this.setTextBoxValue}
                             enablePhraseFilter={this.enablePhraseFilter}
                             ref="textBox"/>

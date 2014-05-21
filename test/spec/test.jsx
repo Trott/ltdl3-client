@@ -13,8 +13,9 @@ var SearchBuilder = require('../../app/scripts/SearchBuilder.jsx');
 var SearchBuilderComponent = require('../../app/scripts/SearchBuilderComponent.jsx');
 var SearchBuilderFilterType = require('../../app/scripts/SearchBuilderFilterType.jsx');
 var SearchBuilderFilterPhrase = require('../../app/scripts/SearchBuilderFilterPhrase.jsx');
-var SearchBuilderTextBox = require('../../app/scripts/SearchBuilderTextBox.jsx');
+var SearchTextBox = require('../../app/scripts/SearchTextBox.jsx');
 var SearchBuilderAdd = require('../../app/scripts/SearchBuilderAdd.jsx');
+var FreeSearch = require('../../app/scripts/FreeSearch.jsx');
 
 (function () {
     var query;
@@ -246,7 +247,7 @@ var SearchBuilderAdd = require('../../app/scripts/SearchBuilderAdd.jsx');
                 );
                 expect(ReactTestUtils.findRenderedComponentWithType(component, SearchBuilderFilterType)).toBeTruthy();
                 expect(ReactTestUtils.findRenderedComponentWithType(component, SearchBuilderFilterPhrase)).toBeTruthy();
-                expect(ReactTestUtils.findRenderedComponentWithType(component, SearchBuilderTextBox)).toBeTruthy();
+                expect(ReactTestUtils.findRenderedComponentWithType(component, SearchTextBox)).toBeTruthy();
                 expect(ReactTestUtils.findRenderedComponentWithType(component, SearchBuilderAdd)).toBeTruthy();
             });
 
@@ -275,7 +276,7 @@ var SearchBuilderAdd = require('../../app/scripts/SearchBuilderAdd.jsx');
                         queryBuilder={query}
                     />
                 );
-                var textBox = ReactTestUtils.findRenderedComponentWithType(component, SearchBuilderTextBox);
+                var textBox = ReactTestUtils.findRenderedComponentWithType(component, SearchTextBox);
                 expect(textBox.state.value).toBe('');
             })
 
@@ -290,7 +291,7 @@ var SearchBuilderAdd = require('../../app/scripts/SearchBuilderAdd.jsx');
                         queryBuilder={query}
                     />
                 );
-                var textBox = ReactTestUtils.findRenderedComponentWithType(component, SearchBuilderTextBox);
+                var textBox = ReactTestUtils.findRenderedComponentWithType(component, SearchTextBox);
                 expect(textBox.state.value).toBe('foo');
             });
         });
@@ -324,7 +325,16 @@ var SearchBuilderAdd = require('../../app/scripts/SearchBuilderAdd.jsx');
                 expect(addButton.add(tdEvent));
                 expect(tdEvent.preventDefault).toHaveBeenCalled();
             });
+        });
+
+        describe('FreeSearch', function () {
+            it('should render a text box', function () {
+                var search = ReactTestUtils.renderIntoDocument(
+                    <FreeSearch/>
+                );
+                expect(function () {
+                    ReactTestUtils.findRenderedComponentWithType(search, SearchTextBox);}).not.toThrow();
+            });
         })
     });
-
 })();
