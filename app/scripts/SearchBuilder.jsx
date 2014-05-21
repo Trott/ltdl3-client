@@ -52,7 +52,7 @@ var query = new Query();
             return {
                 components: [
                     <SearchBuilderComponent
-                        value=""
+                        initialValue={this.props.queryString}
                         key="comp0"
                         index={0}
                         add={this.add}

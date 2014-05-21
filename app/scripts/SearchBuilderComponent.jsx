@@ -33,6 +33,9 @@ var searchBuilderAdd = require('./SearchBuilderAdd.jsx');
             this.refs.phraseFilter.enable();
         },
         componentDidMount: function () {
+            if (this.props.initialValue) {
+                this.setTextBoxValue({value: this.props.initialValue});
+            }
             this.focusTextBox();
         },
         render: function() {
