@@ -148,6 +148,7 @@ var React = require('react');
             }
         },
         add: function (event) {
+            event.preventDefault();
             this.setState({label: event.target.getAttribute('data-label')});
 
             if (this.state.isAdd) {
