@@ -74,6 +74,17 @@ var SearchBuilderAdd = require('../../app/scripts/SearchBuilderAdd.jsx');
                 query.setQueryExpression(1, {term: 'yo%plait'});
                 expect(query.getQueryString()).toBe('(er:yo OR er:plait)');
             });
+
+            it('should remove leading and trailing special chars that are invalid in Solr queries', function () {
+                query.setQueryExpression(0, {term: '@foo@', glueType: query.enumGlueTypes.or});
+                expect(query.getQueryString()).toBe('(er:foo)');
+
+                query.setQueryExpression(0, {term: '@foo@', glueType: query.enumGlueTypes.and});
+                expect(query.getQueryString()).toBe('(er:foo)');
+
+                query.setQueryExpression(0, {term: '@foo@', glueType: query.enumGlueTypes.not});
+                expect(query.getQueryString()).toBe('(-er:foo)');
+            });
         });
 
         describe('setQueryExpression()', function () {
@@ -185,6 +196,15 @@ var SearchBuilderAdd = require('../../app/scripts/SearchBuilderAdd.jsx');
 
         describe('SearchBuilder', function () {
 
+            beforeEach(function () {
+                // jQuery test double
+                window.$ = {ajax: function () {}};
+            });
+
+            afterEach(function () {
+                delete window.$;
+            });
+
             it('should contain a SearchBuilderFilterType', function () {
 
                 var builder = ReactTestUtils.renderIntoDocument(
@@ -203,8 +223,6 @@ var SearchBuilderAdd = require('../../app/scripts/SearchBuilderAdd.jsx');
             });
 
             it('should call showResults() if queryString passed', function () {
-                // jQuery test double
-                window.$ = {ajax: function () {}};
                 var td = {showResults: function () {}};
                 spyOn(td, 'showResults');
                 var builder = ReactTestUtils.renderIntoDocument(
@@ -213,8 +231,31 @@ var SearchBuilderAdd = require('../../app/scripts/SearchBuilderAdd.jsx');
                 expect(td.showResults).toHaveBeenCalled();
             });
 
-            xit('should only allow explicitly permitted chars in queryString', function() {
+            xit('should expand unqualified searches to search everything', function () {
+                spyOn(window.$, 'ajax');
+                var td= {noop: function () {}};
+                var builder = ReactTestUtils.renderIntoDocument(
+                    <SearchBuilder showResults={td.noop} queryString="foo"/>
+                );
+                expect(window.$.ajax.calls.mostRecent().args[0].data.q).toBe("(er:foo)");
+            })
 
+            xit('should use simple valid queryString values', function () {
+                spyOn(window.$, 'ajax');
+                var td = {noop: function () {}};
+                var builder = ReactTestUtils.renderIntoDocument(
+                    <SearchBuilder showResults={td.noop} queryString="(er:foo)"/>
+                );
+                expect(window.$.ajax.calls.mostRecent().args[0].data.q).toBe("(er:foo)");
+            });
+
+            xit('should only allow explicitly permitted chars in queryString', function() {
+                spyOn(window.$, 'ajax');
+                var td = {noop: function () {}};
+                var builder = ReactTestUtils.renderIntoDocument(
+                    <SearchBuilder showResults={td.noop} queryString="(er:foo@)"/>
+                );
+                expect(window.$.ajax.calls.mostRecent().args[0].data.q).toBe("(er:foo)");
             });
 
             xit('should put passed queryString into search box', function () {
