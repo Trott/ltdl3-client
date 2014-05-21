@@ -345,6 +345,13 @@ var FreeSearch = require('../../app/scripts/FreeSearch.jsx');
                     ReactTestUtils.findRenderedComponentWithType(search, SearchTextBox);
                 }).not.toThrow();
             });
+
+            it('should print "You searched for:" if non-empty initial query string is provided', function () {
+                var search = ReactTestUtils.renderIntoDocument(
+                    <FreeSearch initialQueryString="tobacco"/>
+                );
+                expect(search.getDOMNode().textContent).toMatch(/\bYou searched for:/);
+            });
         });
     });
 })();
