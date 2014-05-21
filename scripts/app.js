@@ -581,6 +581,11 @@ Backbone.history.start();
 var regexTerm    = /([\w\+\-&\|!\(\){}\[\]\^"~\*\?:\\]+)/g;
 var regexNonTerm = /[^\w\+\-&\|!\(\){}\[\]\^"~\*\?:\\]+/g;
 
+var applyWhitelist = function (term) {
+    var rv = term.replace(regexNonTerm, ' ');
+    return rv.trim();
+};
+
 var enumGlueTypes = {
     or: 1,
     and: 2,
@@ -594,10 +599,12 @@ var glue = function (term, type, field) {
     switch (type) {
     case enumGlueTypes.or:
         rv += term.replace(regexTerm, field + ':$1');
-        rv = rv.replace(regexNonTerm, ' OR ');
+        rv = applyWhitelist(rv);
+        rv = rv.replace(' ', ' OR ');
         break;
     case enumGlueTypes.and:
         rv += term.replace(regexTerm, field + ':$1');
+        rv = applyWhitelist(rv);
         rv = rv.replace(regexNonTerm, ' AND ');
         break;
     case enumGlueTypes.phrase:
@@ -605,6 +612,7 @@ var glue = function (term, type, field) {
         break;
     case enumGlueTypes.not:
         rv += term.replace(regexTerm, '-' + field + ':$1');
+        rv = applyWhitelist(rv);
         rv = rv.replace(regexNonTerm, ' AND ');
         break;
     }
