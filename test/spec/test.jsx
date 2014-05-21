@@ -348,9 +348,16 @@ var FreeSearch = require('../../app/scripts/FreeSearch.jsx');
 
             it('should print "You searched for:" if non-empty initial query string is provided', function () {
                 var search = ReactTestUtils.renderIntoDocument(
-                    <FreeSearch initialQueryString="tobacco"/>
+                    <FreeSearch initialValue="tobacco"/>
                 );
                 expect(search.getDOMNode().textContent).toMatch(/\bYou searched for:/);
+            });
+
+            it('should set the search box value to initial query string value', function () {
+                var search = ReactTestUtils.renderIntoDocument(
+                    <FreeSearch initialValue="cancer merchants"/>
+                );
+                expect(search.getDOMNode().querySelector('input').value).toBe('cancer merchants');
             });
         });
     });
