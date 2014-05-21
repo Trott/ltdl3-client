@@ -308,11 +308,21 @@ var SearchBuilderAdd = require('../../app/scripts/SearchBuilderAdd.jsx');
         describe('SearchBuilderAdd', function () {
             it('should not delete query expression if isAdd (as it is upon initial creation)', function () {
                 spyOn(query, 'deleteQueryExpression');
-                var add = ReactTestUtils.renderIntoDocument(
+                var addButton = ReactTestUtils.renderIntoDocument(
                     <SearchBuilderAdd queryBuilder={query}/>
                 );
-                add.remove();
+                addButton.remove();
                 expect(query.deleteQueryExpression).not.toHaveBeenCalled();
+            });
+
+            it('should have handler for add that returns false to avoid navigation on clicks', function () {
+                var tdEvent = {target: document.createElement('div'), preventDefault: function () {}};
+                var addButton = ReactTestUtils.renderIntoDocument(
+                    <SearchBuilderAdd add={function () {}} index={0} queryBuilder={query}/>
+                );
+                spyOn(tdEvent, 'preventDefault');
+                expect(addButton.add(tdEvent));
+                expect(tdEvent.preventDefault).toHaveBeenCalled();
             });
         })
     });
