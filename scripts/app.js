@@ -102,7 +102,7 @@ var query = new Query();
             return {
                 components: [
                     SearchBuilderComponent(
-                        {value:"",
+                        {initialValue:this.props.queryString,
                         key:"comp0",
                         index:0,
                         add:this.add,
@@ -221,6 +221,9 @@ var searchBuilderAdd = require('./SearchBuilderAdd.jsx');
             this.refs.phraseFilter.enable();
         },
         componentDidMount: function () {
+            if (this.props.initialValue) {
+                this.setTextBoxValue({value: this.props.initialValue});
+            }
             this.focusTextBox();
         },
         render: function() {
