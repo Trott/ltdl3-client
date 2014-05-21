@@ -22,10 +22,9 @@ var React = require('react');
             }
             this.props.queryBuilder.setQueryExpression(this.props.index, {glueTypeNextTerm: this.props.queryBuilder.enumGlueTypes[event.target.getAttribute('data-value')]});
         },
-        remove: function (event) {
-            this.props.queryBuilder.deleteQueryExpression(this.props.index);
-
+        remove: function () {
             if (! this.state.isAdd) {
+                this.props.queryBuilder.deleteQueryExpression(this.props.index);
                 this.props.remove(this.props.index);
             }
         },

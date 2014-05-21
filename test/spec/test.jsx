@@ -304,6 +304,17 @@ var SearchBuilderAdd = require('../../app/scripts/SearchBuilderAdd.jsx');
                 expect(restrictor.getDOMNode().querySelectorAll('.dropdown-menu li').length).toBe(3);
             });
         });
+
+        describe('SearchBuilderAdd', function () {
+            it('should not delete query expression if isAdd (as it is upon initial creation)', function () {
+                spyOn(query, 'deleteQueryExpression');
+                var add = ReactTestUtils.renderIntoDocument(
+                    <SearchBuilderAdd queryBuilder={query}/>
+                );
+                add.remove();
+                expect(query.deleteQueryExpression).not.toHaveBeenCalled();
+            });
+        })
     });
 
 })();

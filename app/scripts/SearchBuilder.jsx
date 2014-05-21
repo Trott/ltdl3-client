@@ -13,7 +13,7 @@ var query = new Query();
         add: function (index) {
             var components = this.state.components;
             components.push(<SearchBuilderComponent
-                value=""
+                initialValue=""
                 key={"comp"+(index+1)}
                 index={index+1}
                 add={this.add}
