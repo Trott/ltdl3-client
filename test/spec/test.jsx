@@ -240,7 +240,9 @@ var SearchBuilderAdd = require('../../app/scripts/SearchBuilderAdd.jsx');
 
             it('should render expected subcomponents', function () {
                 var component = ReactTestUtils.renderIntoDocument(
-                    <SearchBuilderComponent/>
+                    <SearchBuilderComponent
+                        queryBuilder={query}
+                    />
                 );
                 expect(ReactTestUtils.findRenderedComponentWithType(component, SearchBuilderFilterType)).toBeTruthy();
                 expect(ReactTestUtils.findRenderedComponentWithType(component, SearchBuilderFilterPhrase)).toBeTruthy();
@@ -251,7 +253,7 @@ var SearchBuilderAdd = require('../../app/scripts/SearchBuilderAdd.jsx');
             it('should have a setTextBoxValue() function that works with no passed parameters', function () {
                 var component = ReactTestUtils.renderIntoDocument(
                     <SearchBuilderComponent
-                        value=""
+                        InitialValue=""
                         key="comp0"
                         index={0}
                         add={this.add}
@@ -261,6 +263,35 @@ var SearchBuilderAdd = require('../../app/scripts/SearchBuilderAdd.jsx');
 
                 );
                 expect(function(){component.setTextBoxValue();}).not.toThrow();
+            });
+
+            it('should initialize text box value to empty string if none provided', function () {
+                var component = ReactTestUtils.renderIntoDocument(
+                    <SearchBuilderComponent
+                        key="comp0"
+                        index={0}
+                        add={this.add}
+                        remove={this.remove}
+                        queryBuilder={query}
+                    />
+                );
+                var textBox = ReactTestUtils.findRenderedComponentWithType(component, SearchBuilderTextBox);
+                expect(textBox.state.value).toBe('');
+            })
+
+            it('should pass initialValue to setTextBoxValue()', function () {
+                var component = ReactTestUtils.renderIntoDocument(
+                    <SearchBuilderComponent
+                        initialValue="foo"
+                        key="comp0"
+                        index={0}
+                        add={this.add}
+                        remove={this.remove}
+                        queryBuilder={query}
+                    />
+                );
+                var textBox = ReactTestUtils.findRenderedComponentWithType(component, SearchBuilderTextBox);
+                expect(textBox.state.value).toBe('foo');
             });
         });
 
