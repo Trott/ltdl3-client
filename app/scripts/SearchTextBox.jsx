@@ -21,12 +21,14 @@ var React = require('react');
             return { value: '' };
         },
         render: function () {
+            var rv = <input type="text" value={this.state.value} ref="textInputElement" onChange={this.handleChange} className="form-control" placeholder="Tip: use (*) or (?) to find word variants like legislat* and wom?n"></input>;
+            if (this.props.label) {
+                rv = <label>{this.props.label}{rv}</label>
+            }
+
             return (
                 <div>
-                    <label>
-                        {this.props.label}
-                        <input type="text" value={this.state.value} ref="textInputElement" onChange={this.handleChange} className="form-control" placeholder="Tip: use (*) or (?) to find word variants like legislat* and wom?n"></input>
-                    </label>
+                {rv}
                 </div>
             )
         }
