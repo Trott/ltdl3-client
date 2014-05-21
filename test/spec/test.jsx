@@ -327,14 +327,24 @@ var FreeSearch = require('../../app/scripts/FreeSearch.jsx');
             });
         });
 
+        describe('SearchTextBox', function () {
+            it('should print a label if provided', function () {
+                var box = ReactTestUtils.renderIntoDocument(
+                    <SearchTextBox label="Test label!"/>
+                );
+                expect(box.getDOMNode().textContent).toMatch(/\bTest label!/);
+            });
+        });
+
         describe('FreeSearch', function () {
             it('should render a text box', function () {
                 var search = ReactTestUtils.renderIntoDocument(
                     <FreeSearch/>
                 );
                 expect(function () {
-                    ReactTestUtils.findRenderedComponentWithType(search, SearchTextBox);}).not.toThrow();
+                    ReactTestUtils.findRenderedComponentWithType(search, SearchTextBox);
+                }).not.toThrow();
             });
-        })
+        });
     });
 })();
