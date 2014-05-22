@@ -243,8 +243,12 @@ var FreeSearchClear = require('../../app/scripts/FreeSearchClear.jsx');
                 }).not.toThrow();
             });
 
-            xit('should put passed queryString into search box', function () {
-
+            it('should put passed queryString into search box', function () {
+                var td = {showResults: function () {}};
+                var builder = ReactTestUtils.renderIntoDocument(
+                    <SearchBuilder showResults={td.showResults} queryString="tobacco"/>
+                );
+                expect (builder.getDOMNode().querySelector('input').value).toBe('tobacco');
             });
         });
 
