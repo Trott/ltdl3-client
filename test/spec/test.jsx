@@ -16,6 +16,7 @@ var SearchBuilderFilterPhrase = require('../../app/scripts/SearchBuilderFilterPh
 var SearchTextBox = require('../../app/scripts/SearchTextBox.jsx');
 var SearchBuilderAdd = require('../../app/scripts/SearchBuilderAdd.jsx');
 var FreeSearch = require('../../app/scripts/FreeSearch.jsx');
+var FreeSearchClear = require('../../app/scripts/FreeSearchClear.jsx');
 
 (function () {
     var query;
@@ -359,6 +360,15 @@ var FreeSearch = require('../../app/scripts/FreeSearch.jsx');
                 );
                 expect(search.getDOMNode().querySelector('input').value).toBe('cancer merchants');
             });
+
+            it('should render a free search clear button', function () {
+                var search = ReactTestUtils.renderIntoDocument(
+                    <FreeSearch/>
+                );
+                expect(function () {
+                    ReactTestUtils.findRenderedComponentWithType(search, FreeSearchClear);
+                }).not.toThrow();
+            })
         });
     });
 })();

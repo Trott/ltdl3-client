@@ -3,6 +3,7 @@
  */
 var React = require('react');
 var SearchTextBox = require('./SearchTextBox.jsx');
+var FreeSearchClear = require('./FreeSearchClear.jsx');
 
 module.exports = React.createClass({
     componentDidMount: function () {
@@ -15,7 +16,10 @@ module.exports = React.createClass({
         var label = this.props.initialValue ? 'You searched for:' : '';
 
         return (
-            <SearchTextBox ref="textBox" label={label}/>
+            <div>
+                <SearchTextBox ref="textBox" label={label}/>
+                <FreeSearchClear/>
+            </div>
         );
     }
 });
