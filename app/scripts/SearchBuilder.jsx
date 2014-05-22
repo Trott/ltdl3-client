@@ -3,6 +3,7 @@
  */
 var React = require('react');
 var SearchBuilderComponent = require('./SearchBuilderComponent.jsx');
+var FreeSearch = require('./FreeSearch.jsx');
 var Query = require('./query');
 var query = new Query();
 
@@ -62,21 +63,25 @@ var query = new Query();
             }
         },
         render: function() {
+            var rv;
             if (this.props.queryString) {
                 this.runSearch(this.props.queryString);
+                rv =    <div className="jumbotron">
+                            <FreeSearch initialValue={this.props.queryString}/>
+                        </div>;
+            } else {
+                rv =    <div className="jumbotron">
+                            <form onSubmit={this.handleSubmit} role="form">
+                                <div ref="components">
+                                    {this.state.components}
+                                </div>
+                                <div className="pull-right">
+                                    <button type="submit" className="btn btn-default">Search <span className="glyphicon glyphicon-search"></span></button>
+                                </div>
+                            </form>
+                        </div>;
             }
-            return (
-                <div className="jumbotron">
-                    <form onSubmit={this.handleSubmit} role="form">
-                        <div ref="components">
-                            {this.state.components}
-                        </div>
-                        <div className="pull-right">
-                            <button type="submit" className="btn btn-default">Search <span className="glyphicon glyphicon-search"></span></button>
-                        </div>
-                    </form>
-                </div>
-            );
+            return rv;
         }
     });
 }());

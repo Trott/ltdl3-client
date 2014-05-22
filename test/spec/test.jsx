@@ -233,6 +233,16 @@ var FreeSearchClear = require('../../app/scripts/FreeSearchClear.jsx');
                 expect(td.showResults).toHaveBeenCalled();
             });
 
+            it('should show FreeSearch element if queryString passed', function () {
+                var td = {showResults: function () {}};
+                var builder = ReactTestUtils.renderIntoDocument(
+                    <SearchBuilder showResults={td.showResults} queryString="tobacco"/>
+                );
+                expect(function () {
+                    ReactTestUtils.findRenderedComponentWithType(builder, FreeSearch);
+                }).not.toThrow();
+            });
+
             xit('should put passed queryString into search box', function () {
 
             });
