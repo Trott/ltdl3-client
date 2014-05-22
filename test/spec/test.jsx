@@ -361,7 +361,7 @@ var FreeSearchClear = require('../../app/scripts/FreeSearchClear.jsx');
                 var search = ReactTestUtils.renderIntoDocument(
                     <FreeSearch initialValue="tobacco"/>
                 );
-                expect(search.getDOMNode().textContent).toMatch(/\bYou searched for:/);
+                expect(search.getDOMNode().textContent).toMatch(/You searched for:/);
             });
 
             it('should set the search box value to initial query string value', function () {

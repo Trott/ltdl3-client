@@ -51,7 +51,7 @@
 
 /* More than one button to the left of the search box */
 
-/* Tab's new styles */
+/* Tab's new styles  TODO: convert to Bootstrap columns */
 .typeFilter {width:130px;}
 .phraseFilter {width:160px;}
 .typeFilter, .phraseFilter {text-align:left;}
