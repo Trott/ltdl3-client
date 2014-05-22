@@ -11,6 +11,8 @@ var React = require('react');
             this.refs.textInputElement.getDOMNode().focus();
         },
         handleChange: function (event) {
+            // TODO: Refactor: conditional logic to not run anything if this is in freesearch mode.
+            // Maybe just send an event to subscribed components?
             if (this.props.enablePhraseFilter) {
                 this.props.enablePhraseFilter();
                 this.props.setTextBoxValue({
@@ -23,11 +25,7 @@ var React = require('react');
             return { value: '' };
         },
         render: function () {
-            var rv = <input id="ltdl-freesearch" type="text" value={this.state.value} ref="textInputElement" onChange={this.handleChange} className="form-control" placeholder="Tip: use (*) or (?) to find word variants like legislat* and wom?n"></input>;
-            if (this.props.label) {
-                rv = <div className="form-group"><label htmlFor="ltdl-freesearch" className="col-sm-3 control-label">{this.props.label}</label><div className="col-sm-9">{rv}</div></div>;
-            }
-
+            var rv = <input id={this.props.htmlId} type="text" value={this.state.value} ref="textInputElement" onChange={this.handleChange} className="form-control" placeholder="Tip: use (*) or (?) to find word variants like legislat* and wom?n"></input>;
             return rv;
         }
     });

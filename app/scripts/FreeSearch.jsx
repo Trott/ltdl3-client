@@ -17,8 +17,15 @@ module.exports = React.createClass({
 
         return (
             <form className="form-horizontal" role="form">
-                <SearchTextBox ref="textBox" label={label}/>
-                <FreeSearchClear/>
+                <div className="form-group">
+                    <label htmlFor="ltdl3-freesearch" className="col-sm-3 control-label">
+                        {label}
+                    </label>
+                    <div className="col-sm-7">
+                        <SearchTextBox ref="textBox" htmlId="ltdl3-freesearch"/>
+                    </div>
+                    <FreeSearchClear/>
+                </div>
             </form>
         );
     }

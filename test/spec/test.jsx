@@ -339,11 +339,11 @@ var FreeSearchClear = require('../../app/scripts/FreeSearchClear.jsx');
         });
 
         describe('SearchTextBox', function () {
-            it('should print a label if provided', function () {
+            it('should render id if passed', function () {
                 var box = ReactTestUtils.renderIntoDocument(
-                    <SearchTextBox label="Test label!"/>
+                    <SearchTextBox htmlId="ltdl3-freesearch"/>
                 );
-                expect(box.getDOMNode().textContent).toMatch(/\bTest label!/);
+                expect(box.getDOMNode().id).toBe('ltdl3-freesearch');
             });
         });
 
