@@ -16,10 +16,10 @@ module.exports = React.createClass({
         var label = this.props.initialValue ? 'You searched for:' : '';
 
         return (
-            <div>
+            <form className="form-horizontal" role="form">
                 <SearchTextBox ref="textBox" label={label}/>
                 <FreeSearchClear/>
-            </div>
+            </form>
         );
     }
 });
