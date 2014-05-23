@@ -13,8 +13,10 @@ var SearchBuilder = require('../../app/scripts/SearchBuilder.jsx');
 var SearchBuilderComponent = require('../../app/scripts/SearchBuilderComponent.jsx');
 var SearchBuilderFilterType = require('../../app/scripts/SearchBuilderFilterType.jsx');
 var SearchBuilderFilterPhrase = require('../../app/scripts/SearchBuilderFilterPhrase.jsx');
-var SearchBuilderTextBox = require('../../app/scripts/SearchBuilderTextBox.jsx');
+var SearchTextBox = require('../../app/scripts/SearchTextBox.jsx');
 var SearchBuilderAdd = require('../../app/scripts/SearchBuilderAdd.jsx');
+var FreeSearch = require('../../app/scripts/FreeSearch.jsx');
+var FreeSearchClear = require('../../app/scripts/FreeSearchClear.jsx');
 
 (function () {
     var query;
@@ -231,8 +233,22 @@ var SearchBuilderAdd = require('../../app/scripts/SearchBuilderAdd.jsx');
                 expect(td.showResults).toHaveBeenCalled();
             });
 
-            xit('should put passed queryString into search box', function () {
+            it('should show FreeSearch element if queryString passed', function () {
+                var td = {showResults: function () {}};
+                var builder = ReactTestUtils.renderIntoDocument(
+                    <SearchBuilder showResults={td.showResults} queryString="tobacco"/>
+                );
+                expect(function () {
+                    ReactTestUtils.findRenderedComponentWithType(builder, FreeSearch);
+                }).not.toThrow();
+            });
 
+            it('should put passed queryString into search box', function () {
+                var td = {showResults: function () {}};
+                var builder = ReactTestUtils.renderIntoDocument(
+                    <SearchBuilder showResults={td.showResults} queryString="tobacco"/>
+                );
+                expect (builder.getDOMNode().querySelector('input').value).toBe('tobacco');
             });
         });
 
@@ -246,7 +262,7 @@ var SearchBuilderAdd = require('../../app/scripts/SearchBuilderAdd.jsx');
                 );
                 expect(ReactTestUtils.findRenderedComponentWithType(component, SearchBuilderFilterType)).toBeTruthy();
                 expect(ReactTestUtils.findRenderedComponentWithType(component, SearchBuilderFilterPhrase)).toBeTruthy();
-                expect(ReactTestUtils.findRenderedComponentWithType(component, SearchBuilderTextBox)).toBeTruthy();
+                expect(ReactTestUtils.findRenderedComponentWithType(component, SearchTextBox)).toBeTruthy();
                 expect(ReactTestUtils.findRenderedComponentWithType(component, SearchBuilderAdd)).toBeTruthy();
             });
 
@@ -275,7 +291,7 @@ var SearchBuilderAdd = require('../../app/scripts/SearchBuilderAdd.jsx');
                         queryBuilder={query}
                     />
                 );
-                var textBox = ReactTestUtils.findRenderedComponentWithType(component, SearchBuilderTextBox);
+                var textBox = ReactTestUtils.findRenderedComponentWithType(component, SearchTextBox);
                 expect(textBox.state.value).toBe('');
             })
 
@@ -290,7 +306,7 @@ var SearchBuilderAdd = require('../../app/scripts/SearchBuilderAdd.jsx');
                         queryBuilder={query}
                     />
                 );
-                var textBox = ReactTestUtils.findRenderedComponentWithType(component, SearchBuilderTextBox);
+                var textBox = ReactTestUtils.findRenderedComponentWithType(component, SearchTextBox);
                 expect(textBox.state.value).toBe('foo');
             });
         });
@@ -324,7 +340,49 @@ var SearchBuilderAdd = require('../../app/scripts/SearchBuilderAdd.jsx');
                 expect(addButton.add(tdEvent));
                 expect(tdEvent.preventDefault).toHaveBeenCalled();
             });
-        })
-    });
+        });
 
+        describe('SearchTextBox', function () {
+            it('should render id if passed', function () {
+                var box = ReactTestUtils.renderIntoDocument(
+                    <SearchTextBox htmlId="ltdl3-freesearch"/>
+                );
+                expect(box.getDOMNode().id).toBe('ltdl3-freesearch');
+            });
+        });
+
+        describe('FreeSearch', function () {
+            it('should render a text box', function () {
+                var search = ReactTestUtils.renderIntoDocument(
+                    <FreeSearch/>
+                );
+                expect(function () {
+                    ReactTestUtils.findRenderedComponentWithType(search, SearchTextBox);
+                }).not.toThrow();
+            });
+
+            it('should print "You searched for:" if non-empty initial query string is provided', function () {
+                var search = ReactTestUtils.renderIntoDocument(
+                    <FreeSearch initialValue="tobacco"/>
+                );
+                expect(search.getDOMNode().textContent).toMatch(/You searched for:/);
+            });
+
+            it('should set the search box value to initial query string value', function () {
+                var search = ReactTestUtils.renderIntoDocument(
+                    <FreeSearch initialValue="cancer merchants"/>
+                );
+                expect(search.getDOMNode().querySelector('input').value).toBe('cancer merchants');
+            });
+
+            it('should render a free search clear button', function () {
+                var search = ReactTestUtils.renderIntoDocument(
+                    <FreeSearch/>
+                );
+                expect(function () {
+                    ReactTestUtils.findRenderedComponentWithType(search, FreeSearchClear);
+                }).not.toThrow();
+            })
+        });
+    });
 })();
