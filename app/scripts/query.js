@@ -22,7 +22,7 @@ var glue = function (term, type, field) {
     case enumGlueTypes.or:
         rv += term.replace(regexTerm, field + ':$1');
         rv = applyWhitelist(rv);
-        rv = rv.replace(' ', ' OR ');
+        rv = rv.replace(regexNonTerm, ' OR ');
         break;
     case enumGlueTypes.and:
         rv += term.replace(regexTerm, field + ':$1');
