@@ -100,9 +100,19 @@ var FreeSearchClear = require('../../app/scripts/FreeSearchClear.jsx');
                 expect(query.getQueryString()).toBe('(er:foo OR er:bar)');
             });
 
+            it('should split more than two terms and join them with default OR if glueType not specified', function () {
+                query.setQueryExpression(1, {term: 'foo bar baz', field: 'er'});
+                expect(query.getQueryString()).toBe('(er:foo OR er:bar OR er:baz)');
+            });
+
             it('should use OR if specified', function () {
                 query.setQueryExpression(1, {term: 'foo bar', field: 'er', glueType: query.enumGlueTypes.or});
                 expect(query.getQueryString()).toBe('(er:foo OR er:bar)');
+            });
+
+            it('should split more than two terms and join them with OR if specified', function () {
+                query.setQueryExpression(1, {term: 'foo bar baz', field: 'er', glueType: query.enumGlueTypes.or});
+                expect(query.getQueryString()).toBe('(er:foo OR er:bar OR er:baz)');
             });
 
             it('should use AND if specified', function () {
