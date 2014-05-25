@@ -659,6 +659,8 @@ var enumGlueTypes = {
 var glue = function (term, type, field) {
     var rv = '';
 
+    //TODO: DRY this out.
+
     switch (type) {
     case enumGlueTypes.or:
         rv += term.replace(regexTerm, field + ':$1');
